@@ -21,15 +21,29 @@ class RegisteredUserController extends Controller
     }
 
     public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'idEmpleado' => ['required', 'numeric', 'unique:empleado,idEmpleado'],
-            'nombre'     => ['required', 'string', 'max:255'],
-            'apellidoP'  => ['required', 'string', 'max:255'],
-            'apellidoM'  => ['nullable', 'string', 'max:255'],
-            'correo'     => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:empleado,correo'],
-            'contrasena' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+{
+    $request->validate([
+        'idEmpleado' => ['required', 'numeric', 'unique:empleado,idEmpleado'],
+        'nombre'     => ['required', 'string', 'max:255'],
+        'apellidoP'  => ['required', 'string', 'max:255'],
+        'apellidoM'  => ['nullable', 'string', 'max:255'],
+        'correo'     => [
+            'required',
+            'string',
+            'email',
+            'max:255',
+            'unique:empleado,correo',
+            'ends_with:@conabio.gob.mx',
+        ],
+        'contrasena' => ['required', 'confirmed', Rules\Password::defaults()],
+    ],
+    [
+        'contrasena.confirmed' => 'Las contraseñas no coinciden.',
+        'contrasena.required'  => 'El campo de contraseña es obligatorio.',
+        'correo.unique'    => 'Este correo electrónico ya fue registrado anteriormente.',
+        'correo.ends_with' => 'El correo debe pertenecer al dominio @conabio.gob.mx.',
+        'idEmpleado.unique'    => 'El número de empleado que ingresaste ya fue registrado anteriormente',
+    ]);
 
         $empleado = Empleado::create([
             'idEmpleado' => $request->idEmpleado,

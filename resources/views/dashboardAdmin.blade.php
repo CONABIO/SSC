@@ -226,7 +226,7 @@
                                                                                 @if($c->evidencia)
                                                                                     <button
                                                                                         type="button"
-                                                                                        onclick="abrirModalPreviewPdf('{{ asset('storage/' . $c->evidencia) }}', '{{ addslashes($c->nombre) }}')"
+                                                                                        onclick="abrirModalPreviewPdf('{{ route('cursos.ver.evidencia', $c->id) }}', '{{ addslashes($c->nombre) }}')"
                                                                                         class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-rose-50 text-[#691C32] hover:bg-rose-100 font-bold text-[10px] rounded border border-rose-200 transition cursor-pointer"
                                                                                         title="Ver constancia en vista previa"
                                                                                     >

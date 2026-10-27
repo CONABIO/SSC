@@ -44,6 +44,9 @@ Route::middleware(['auth'])->group(function () {
 
 
      Route::post('/admin/recordatorio/{id}', [AdminController::class, 'enviarRecordatorio'])->name('admin.recordatorio.empleado');
+
+
+     Route::get('/cursos/evidencia/{id}', [CursoController::class, 'verEvidencia'])->name('cursos.ver.evidencia');
 });
 
 require __DIR__.'/auth.php';

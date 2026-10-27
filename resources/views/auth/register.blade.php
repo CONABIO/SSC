@@ -8,6 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -85,7 +89,7 @@
                     </p>
                 </div>
 
-                <form method="POST" action="{{ route('register') }}" class="space-y-3.5">
+                <form id="registerForm" method="POST" action="{{ route('register') }}" class="space-y-3.5">
                     @csrf
 
                     <!-- 1. Número de Empleado (idEmpleado) -->
@@ -96,7 +100,6 @@
                         <input id="idEmpleado" type="number" name="idEmpleado" value="{{ old('idEmpleado') }}"
                             placeholder="Ej. 1045" required autofocus
                             class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
-                        <x-input-error :messages="$errors->get('idEmpleado')" class="mt-1 text-xs text-red-600" />
                     </div>
 
                     <div>
@@ -104,33 +107,31 @@
                             Nombre(s)
                         </label>
                         <input id="nombre" type="text" name="nombre" value="{{ old('nombre') }}"
-                            placeholder="Ej. Leonardo" required autocomplete="given-name"
+                            placeholder="Ej. Juan" required autocomplete="given-name"
                             class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
-                        <x-input-error :messages="$errors->get('nombre')" class="mt-1 text-xs text-red-600" />
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label for="apellidoP" class="block text-xs font-bold  tracking-wider text-gray-700 mb-1">
+                            <label for="apellidoP" class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
                                 Primer Apellido
                             </label>
                             <input id="apellidoP" type="text" name="apellidoP" value="{{ old('apellidoP') }}"
-                                placeholder="Ej. Vázquez" required autocomplete="family-name"
+                                placeholder="Ej. Perez" required autocomplete="family-name"
                                 class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
-                            <x-input-error :messages="$errors->get('apellidoP')" class="mt-1 text-xs text-red-600" />
                         </div>
 
                         <div>
-                            <label for="apellidoM" class="block text-xs font-bold  tracking-wider text-gray-700 mb-1">
+                            <label for="apellidoM" class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
                                 Segundo Apellido
                             </label>
                             <input id="apellidoM" type="text" name="apellidoM" value="{{ old('apellidoM') }}"
-                                placeholder="Ej. Oviedo" autocomplete="additional-name"
+                                placeholder="Ej. Perez" autocomplete="additional-name"
                                 class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
-                            <x-input-error :messages="$errors->get('apellidoM')" class="mt-1 text-xs text-red-600" />
                         </div>
                     </div>
 
+                    <!-- Campo Correo -->
                     <div>
                         <label for="correo" class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
                             Correo institucional
@@ -138,7 +139,6 @@
                         <input id="correo" type="email" name="correo" value="{{ old('correo') }}"
                             placeholder="ejemplo@conabio.gob.mx" required autocomplete="email"
                             class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
-                        <x-input-error :messages="$errors->get('correo')" class="mt-1 text-xs text-red-600" />
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -149,7 +149,6 @@
                             <input id="contrasena" type="password" name="contrasena" placeholder="••••••••••••" required
                                 autocomplete="new-password"
                                 class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
-                            <x-input-error :messages="$errors->get('contrasena')" class="mt-1 text-xs text-red-600" />
                         </div>
 
                         <div>
@@ -159,7 +158,6 @@
                             <input id="contrasena_confirmation" type="password" name="contrasena_confirmation"
                                 placeholder="Repite contraseña" required autocomplete="new-password"
                                 class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
-                            <x-input-error :messages="$errors->get('contrasena_confirmation')" class="mt-1 text-xs text-red-600" />
                         </div>
                     </div>
 
@@ -186,6 +184,65 @@
             </div>
         </div>
     </div>
+
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                let listaErrores = '';
+                @foreach ($errors->all() as $error)
+                    listaErrores += '<li class="mb-1">{{ $error }}</li>';
+                @endforeach
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Aviso',
+                    html: '<ul style="text-align: left; padding-left: 20px; list-style-type: disc;">' + listaErrores + '</ul>',
+                    confirmButtonColor: '#691C32',
+                    confirmButtonText: 'Entendido'
+                });
+            });
+        </script>
+    @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('registerForm');
+            const correoInput = document.getElementById('correo');
+            const passInput = document.getElementById('contrasena');
+            const passConfirmInput = document.getElementById('contrasena_confirmation');
+
+            function esCorreoValido(correo) {
+                return /^[a-zA-Z0-9._%+-]+@conabio\.gob\.mx$/i.test(correo.trim());
+            }
+            form.addEventListener('submit', function (e) {
+                const correo = correoInput.value.trim();
+                const pass = passInput.value;
+                const passConfirm = passConfirmInput.value;
+                if (!esCorreoValido(correo)) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Correo no permitido',
+                        text: 'Solo se permiten correos institucionales con dominio @conabio.gob.mx',
+                        confirmButtonColor: '#691C32',
+                        confirmButtonText: 'Corregir'
+                    }).then(() => correoInput.focus());
+                    return;
+                }
+                if (pass !== passConfirm) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Contraseñas no coinciden',
+                        text: 'Asegúrate de que ambas contraseñas escritas sean exactamente iguales.',
+                        confirmButtonColor: '#691C32',
+                        confirmButtonText: 'Corregir'
+                    }).then(() => passConfirmInput.focus());
+                    return;
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

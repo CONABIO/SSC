@@ -28,7 +28,7 @@ class ConstanciaObligatorioMailable extends Mailable
         $anioActual     = date('Y');
 
         return $this->from($correoEmpleado, $nombreCompleto)
-                    ->subject('Constancia de curso obligatorio')
+                    ->subject('Constancia de curso')
                     ->html("
                         <div style='font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.8; color: #222;'>
                             <p>Buenas tardes,</p>

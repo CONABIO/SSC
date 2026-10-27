@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es" class="h-full">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,23 +37,17 @@
 </head>
 
 <body class="font-sans antialiased bg-gray-50 text-gray-900 min-h-screen">
-
     <div class="min-h-screen flex flex-col lg:flex-row">
-
-        <!-- PANEL IZQUIERDO INSTITUCIONAL -->
         <div class="lg:w-4/12 xl:w-[35%] bg-gradient-to-b from-vino-900 via-vino-850 to-vino-950 text-white flex flex-col justify-between p-7 sm:p-9 relative overflow-hidden border-r border-vino-700/40">
             <img src="https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?q=80&w=1200&auto=format&fit=crop"
                 alt="Naturaleza Mexicana"
                 class="absolute inset-0 w-full h-full object-cover opacity-10 mix-blend-luminosity pointer-events-none" />
-
             <div class="absolute -top-24 -left-24 w-80 h-80 bg-dorado-500/15 rounded-full blur-3xl pointer-events-none"></div>
-
             <div class="relative z-10 w-full py-4">
                 <div class="flex flex-col items-center justify-center mb-8">
                     <img src="{{ asset('images/logo_conabio_transparente.png') }}" alt="Logo CONABIO"
                         class="h-32 sm:h-36 w-auto mx-auto block object-contain brightness-0 invert drop-shadow-xl transition-all" />
                 </div>
-
                 <div class="pt-8 border-t-2 border-dorado-500/30 text-center sm:text-left">
                     <h1 class="text-3xl sm:text-4xl lg:text-4xl font-black text-white leading-tight tracking-tight mt-12">
                         Sistema de Seguimiento de <span class="text-dorado-400">Capacitación</span>
@@ -72,7 +65,6 @@
             </div>
         </div>
 
-        <!-- PANEL DERECHO: FORMULARIO -->
         <div class="lg:w-8/12 xl:w-[65%] flex items-center justify-center p-6 sm:p-12 lg:p-16 bg-white">
             <div class="w-full max-w-md space-y-6">
 
@@ -103,7 +95,6 @@
                 <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
                     @csrf
 
-                    <!-- Campo Correo (name="correo") -->
                     <div>
                         <label for="correo" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
                             Correo institucional
@@ -141,11 +132,8 @@
                         <span>Volver al inicio de sesión</span>
                     </a>
                 </div>
-
             </div>
         </div>
-
     </div>
-
 </body>
 </html>
