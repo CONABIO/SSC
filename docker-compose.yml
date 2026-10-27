@@ -1,0 +1,36 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: ssc-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: gef2026
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3307:3306"
+    volumes:
+      - ssc-dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    container_name: ssc-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: gef2026
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  ssc-dbdata:
