@@ -53,8 +53,7 @@
                         Sistema de Seguimiento de <span class="text-dorado-400">Capacitación</span>
                     </h1>
                     <p class="text-sm sm:text-base text-rose-100/90 mt-4 leading-relaxed font-normal">
-                        Control, registro y acreditación curricular del personal de la Comisión Nacional para el
-                        Conocimiento y Uso de la Biodiversidad.
+                        Control de Profesionalización de las Personas Servidoras Públicas asignadas a la Comisión Nacional para el Conocimiento y Uso de la Biodiversidad.
                     </p>
                 </div>
             </div>

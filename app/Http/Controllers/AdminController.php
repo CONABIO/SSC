@@ -18,7 +18,7 @@ class AdminController extends Controller
         $todosLosCursos = DB::table('cursos')->get();
         $cursosCatalogo = DB::table('cat_cursosemarnat')->get();
         $totalCatalogoObligatorios = $cursosCatalogo->count();
-        $empleados = $empleadosBD->map(function ($emp) use ($todosLosCursos) {
+        $empleados = $empleadosBD->map(function ($emp) use ($todosLosCursos, $cursosCatalogo) {
             $id = $emp->idEmpleado ?? $emp->id;
             $emp->cursos = $todosLosCursos->where('idEmpleado', $id);
             return $emp;
@@ -207,10 +207,10 @@ class AdminController extends Controller
         foreach ($cursos as $c) {
             if ($c->evidencia && Storage::disk('public')->exists($c->evidencia)) {
                 $rutaFisica = Storage::disk('public')->path($c->evidencia);
-                $ext = pathinfo($rutaFisica, PATHINFO_EXTENSION) ?: 'pdf';
-                $nombreArchivoEnZip = Str::slug($c->nombre) . '_' . $c->horas . 'hrs.' . $ext;
-                $zip->addFile($rutaFisica, $nombreArchivoEnZip);
-                $agregados++;
+                $nombreArchivoEnZip = $this->nombreConstanciaEnZip($idEmpleado, $empleado, $c, $rutaFisica);
+                if ($zip->addFile($rutaFisica, $nombreArchivoEnZip)) {
+                    $agregados++;
+                }
             }
         }
         $zip->close();
@@ -245,12 +245,11 @@ class AdminController extends Controller
         foreach ($cursos as $c) {
             if ($c->evidencia && Storage::disk('public')->exists($c->evidencia)) {
                 $rutaFisica = Storage::disk('public')->path($c->evidencia);
-                $ext = pathinfo($rutaFisica, PATHINFO_EXTENSION) ?: 'pdf';
                 $emp = $empleados->get($c->idEmpleado);
-                $nomEmp = $emp ? Str::slug($emp->nombre . '_' . $emp->apellidoP) : 'empleado_' . $c->idEmpleado;
-                $nombreArchivoEnZip = $c->idEmpleado . '_' . $nomEmp . '.' . $ext;
-                $zip->addFile($rutaFisica, $nombreArchivoEnZip);
-                $agregados++;
+                $nombreArchivoEnZip = $this->nombreConstanciaEnZip($c->idEmpleado, $emp, $c, $rutaFisica);
+                if ($zip->addFile($rutaFisica, $nombreArchivoEnZip)) {
+                    $agregados++;
+                }
             }
         }
         $zip->close();
@@ -259,6 +258,23 @@ class AdminController extends Controller
             return back()->with('error', 'Los archivos de evidencia no se encontraron físicamente en el servidor.');
         }
         return response()->download($tempFile, $nombreZip)->deleteFileAfterSend(true);
+    }
+
+    private function nombreConstanciaEnZip($idEmpleado, $empleado, $curso, $rutaFisica)
+    {
+        $normalizar = fn ($valor, $respaldo) => Str::slug((string) $valor, '_') ?: $respaldo;
+        $ext = pathinfo($rutaFisica, PATHINFO_EXTENSION) ?: 'pdf';
+        $nombreEmpleado = $empleado->nombre ?? '';
+        $apellidoPaterno = $empleado->apellidoP ?? '';
+        $apellidoMaterno = $empleado->apellidoM ?? '';
+
+        return implode('_', [
+            $normalizar($idEmpleado, 'sin_id'),
+            $normalizar($nombreEmpleado, 'sin_nombre'),
+            $normalizar($apellidoPaterno, 'sin_apellido_paterno'),
+            $normalizar($apellidoMaterno, 'sin_apellido_materno'),
+            $normalizar($curso->nombre ?? '', 'sin_nombre_curso'),
+        ]) . '.' . $ext;
     }
 
     public function updateCursoObligatorio(Request $request, $id)

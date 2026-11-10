@@ -47,6 +47,7 @@ Route::middleware(['auth'])->group(function () {
 
 
      Route::get('/cursos/evidencia/{id}', [CursoController::class, 'verEvidencia'])->name('cursos.ver.evidencia');
+     Route::get('/cursos/validacion/{id}', [CursoController::class, 'verValidacion'])->name('cursos.ver.validacion');
 });
 
 require __DIR__.'/auth.php';

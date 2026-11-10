@@ -57,8 +57,7 @@
                         Sistema de Seguimiento de <span class="text-dorado-400">Capacitación</span>
                     </h1>
                     <p class="text-sm sm:text-base text-rose-100/90 mt-4 leading-relaxed font-normal">
-                        Control, registro y acreditación curricular del personal de la Comisión Nacional para el
-                        Conocimiento y Uso de la Biodiversidad.
+                        Control de Profesionalización de las Personas Servidoras Públicas asignadas a la Comisión Nacional para el Conocimiento y Uso de la Biodiversidad.
                     </p>
                 </div>
 
@@ -95,7 +94,7 @@
                                 </svg>
                             </div>
                             <input id="correo" type="email" name="correo" value="{{ old('correo') }}"
-                                placeholder="tu_usuario@conabio.gob.mx" required autofocus autocomplete="username"
+                                placeholder="tu_usuario@semarnat.gob.mx" required autofocus autocomplete="username"
                                 class="block w-full pl-10 pr-3 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
                         </div>
                         <x-input-error :messages="$errors->get('correo')" class="mt-1 text-xs text-red-600" />

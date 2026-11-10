@@ -65,8 +65,7 @@
                     </h1>
 
                     <p class="text-sm sm:text-base text-rose-100/90 mt-4 leading-relaxed font-normal">
-                        Control, registro y acreditación curricular del personal de la Comisión Nacional para el
-                        Conocimiento y Uso de la Biodiversidad.
+                        Control de Profesionalización de las Personas Servidoras Públicas asignadas a la Comisión Nacional para el Conocimiento y Uso de la Biodiversidad.
                     </p>
                 </div>
             </div>
@@ -137,7 +136,8 @@
                             Correo institucional
                         </label>
                         <input id="correo" type="email" name="correo" value="{{ old('correo') }}"
-                            placeholder="ejemplo@conabio.gob.mx" required autocomplete="email"
+                            placeholder="ejemplo@semarnat.gob.mx" required autocomplete="email"
+                            pattern="[A-Za-z0-9._%+-]+@semarnat\.gob\.mx" title="Usa un correo con dominio @semarnat.gob.mx"
                             class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
                     </div>
 
@@ -212,7 +212,7 @@
             const passConfirmInput = document.getElementById('contrasena_confirmation');
 
             function esCorreoValido(correo) {
-                return /^[a-zA-Z0-9._%+-]+@conabio\.gob\.mx$/i.test(correo.trim());
+                return /^[a-zA-Z0-9._%+-]+@semarnat\.gob\.mx$/i.test(correo.trim());
             }
             form.addEventListener('submit', function (e) {
                 const correo = correoInput.value.trim();
@@ -223,7 +223,7 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'Correo no permitido',
-                        text: 'Solo se permiten correos institucionales con dominio @conabio.gob.mx',
+                        text: 'Solo se permiten correos institucionales con terminación @semarnat.gob.mx',
                         confirmButtonColor: '#691C32',
                         confirmButtonText: 'Corregir'
                     }).then(() => correoInput.focus());
