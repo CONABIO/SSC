@@ -28,13 +28,13 @@
                 <aside class="w-full lg:w-80 flex-shrink-0 space-y-4" style="min-width: 280px; max-width: 320px;">
                     <div class="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-4 space-y-2">
                         <div class="px-3 pt-2 pb-1"><span class="text-[10px] font-black tracking-widest text-gray-400 uppercase">Panel Administrador</span></div>
-                        <button id="btn-empleados" type="button" onclick="cambiarModuloAdmin('empleados')" class="w-full text-left p-3.5 rounded-xl transition-all duration-150 flex items-center justify-between bg-transparent text-gray-700 hover:bg-gray-100 font-semibold cursor-pointer">
-                            <div class="flex items-center gap-3"><span class="text-lg">👥</span><div><p class="text-xs leading-snug">Empleados y Cursos</p><p class="text-[10px] text-gray-400 font-normal">Expediente general</p></div></div>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-extrabold">{{ $totalEmpleados }}</span>
-                        </button>
                         <button id="btn-estadisticas" type="button" onclick="cambiarModuloAdmin('estadisticas')" class="w-full text-left p-3.5 rounded-xl transition-all duration-150 flex items-center justify-between bg-[#691C32] text-white font-bold shadow-md cursor-pointer">
                             <div class="flex items-center gap-3"><span class="text-lg">📊</span><div><p class="text-xs leading-snug">Estadísticas y Reportes</p><p class="text-[10px] opacity-80 font-normal">Gráficas y descargas</p></div></div>
                             <span class="text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white font-bold">Métricas</span>
+                        </button>
+                        <button id="btn-empleados" type="button" onclick="cambiarModuloAdmin('empleados')" class="w-full text-left p-3.5 rounded-xl transition-all duration-150 flex items-center justify-between bg-transparent text-gray-700 hover:bg-gray-100 font-semibold cursor-pointer">
+                            <div class="flex items-center gap-3"><span class="text-lg">👥</span><div><p class="text-xs leading-snug">Empleados y Cursos</p><p class="text-[10px] text-gray-400 font-normal">Expediente general</p></div></div>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-extrabold">{{ $totalEmpleados }}</span>
                         </button>
                         <button id="btn-cursos" type="button" onclick="cambiarModuloAdmin('cursos')" class="w-full text-left p-3.5 rounded-xl transition-all duration-150 flex items-center justify-between bg-transparent text-gray-700 hover:bg-gray-100 font-semibold cursor-pointer">
                             <div class="flex items-center gap-3"><span class="text-lg">➕</span><div><p class="text-xs leading-snug">Agregar Curso Obligatorio</p><p class="text-[10px] text-gray-400 font-normal">Catálogo SEMARNAT</p></div></div>
@@ -82,7 +82,7 @@
                                         <tr>
                                             <th class="py-3.5 px-4 text-center w-14">No.</th>
                                             <th class="py-3.5 px-4">Nombre Completo</th>
-                                            <th class="py-3.5 px-4 text-center">Cursos</th>
+                                            <th class="py-3.5 px-4 text-center w-28 min-w-[7rem] whitespace-nowrap">Cursos</th>
                                             <th class="py-3.5 px-4 text-center w-44">Avance Horas</th>
                                             <th class="py-3.5 px-3 text-center w-28">Expediente</th>
                                             <th class="py-3.5 px-3 text-center w-28">Recordatorio</th>
@@ -111,13 +111,17 @@
                                                     <div>{{ $emp->nombre }} {{ $emp->apellidoP }} {{ $emp->apellidoM }}</div>
                                                     <div class="text-[10px] font-normal text-gray-400">{{ $emp->correo }}</div>
                                                 </td>
-                                                <td class="py-3.5 px-4 text-center">
+                                                <td class="py-3.5 px-4 text-center w-28 min-w-[7rem]">
                                                     @if($tieneCursos)
-                                                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-blue-50 text-blue-800 border border-blue-200">
-                                                            {{ $emp->cursos->count() }} curso(s)
+                                                        <span class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                                            <span class="font-black">{{ $emp->cursos->count() }}</span>
+                                                            <span>{{ $emp->cursos->count() === 1 ? 'curso' : 'cursos' }}</span>
                                                         </span>
                                                     @else
-                                                        <span class="text-gray-400 italic text-[11px]">0 cursos</span>
+                                                        <span class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-semibold bg-gray-50 text-gray-500 border border-gray-200">
+                                                            <span class="font-black">0</span>
+                                                            <span>cursos</span>
+                                                        </span>
                                                     @endif
                                                 </td>
                                                 <td class="py-3.5 px-4 text-center">
@@ -133,10 +137,10 @@
                                                     @if($tieneCursos)
                                                         <button
                                                             type="button"
-                                                            onclick="toggleCursos('cursos-emp-{{ $idEmp }}')"
+                                                            onclick="toggleCursos('cursos-emp-{{ $idEmp }}', this)"
                                                             class="px-2.5 py-1 bg-gray-100 hover:bg-[#691C32] hover:text-white rounded-lg text-[10px] font-bold text-gray-700 transition cursor-pointer whitespace-nowrap"
                                                         >
-                                                            Ver Cursos ▼
+                                                            Ver Cursos ▾
                                                         </button>
                                                     @else
                                                         <span class="text-gray-300 font-bold select-none">—</span>
@@ -187,30 +191,34 @@
                                                                     <span>📦 Descargar todas las constancias (.zip)</span>
                                                                 </a>
                                                             </div>
-                                                            <table class="w-full text-left text-xs">
-                                                                <thead class="text-[11px] font-bold text-gray-500 border-b border-gray-100 uppercase">
+                                                            <div class="overflow-x-auto">
+                                                            <table class="w-full min-w-[1020px] text-left text-xs">
+                                                                <thead class="text-[11px] font-bold text-gray-500 border-b border-gray-100">
                                                                     <tr>
-                                                                        <th class="pb-1.5">Nombre del Curso</th>
-                                                                        <th class="pb-1.5 text-center">Tipo</th>
-                                                                        <th class="pb-1.5 text-center">Horas</th>
-                                                                        <th class="pb-1.5 text-center">Calificación</th>
-                                                                        <th class="pb-1.5 text-center">Validación SEMARNAT</th>
-                                                                        <th class="pb-1.5 text-center">Constancia</th>
+                                                                        <th class="px-3 py-2">Nombre del Curso</th>
+                                                                        <th class="px-3 py-2 text-center whitespace-nowrap">Tipo</th>
+                                                                        <th class="px-3 py-2 text-center whitespace-nowrap">Horas</th>
+                                                                        <th class="px-3 py-2 text-center whitespace-nowrap">Periodo</th>
+                                                                        <th class="px-3 py-2 text-center whitespace-nowrap">Calificación</th>
+                                                                        <th class="px-3 py-2 text-center whitespace-nowrap">Validación SEMARNAT</th>
+                                                                        <th class="px-3 py-2 text-center whitespace-nowrap">Respuesta SEMARNAT</th>
+                                                                        <th class="px-3 py-2 text-center whitespace-nowrap">Constancia</th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody class="divide-y divide-gray-100">
                                                                     @foreach($emp->cursos as $c)
                                                                         <tr>
-                                                                            <td class="py-2 text-gray-800 font-bold">{{ $c->nombre }}</td>
-                                                                            <td class="py-2 text-center">
+                                                                            <td class="px-3 py-3 text-gray-800 font-bold min-w-[260px]">{{ $c->nombre }}</td>
+                                                                            <td class="px-3 py-3 text-center">
                                                                                 <span class="text-[9px] px-2 py-0.5 rounded-full font-extrabold {{ $c->obligatorio ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800' }}">
                                                                                     {{ $c->obligatorio ? 'Obligatorio' : 'Otros' }}
                                                                                 </span>
                                                                             </td>
-                                                                            <td class="py-2 text-center font-bold text-gray-700">{{ $c->horas }} hrs</td>
-                                                                            <td class="py-2 text-center font-bold text-gray-800">{{ $c->calificacion ?? 'S/C' }}</td>
+                                                                            <td class="px-3 py-3 text-center font-bold text-gray-700 whitespace-nowrap">{{ $c->horas }} hrs</td>
+                                                                            <td class="px-3 py-3 text-center font-bold text-gray-700 whitespace-nowrap">{{ $c->periodo ?? '—' }}</td>
+                                                                            <td class="px-3 py-3 text-center font-bold text-gray-800 whitespace-nowrap">{{ $c->calificacion ?? 'S/C' }}</td>
 
-                                                                            <td class="py-2 text-center">
+                                                                            <td class="px-3 py-3 text-center whitespace-nowrap">
                                                                                 @if(isset($c->validadoSemarnat) && $c->validadoSemarnat == 1)
                                                                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                                                                         <span>✓</span> Validado
@@ -222,7 +230,15 @@
                                                                                 @endif
                                                                             </td>
 
-                                                                            <td class="py-2 text-center">
+                                                                            <td class="px-3 py-3 text-center whitespace-nowrap">
+                                                                                @if($c->validacion)
+                                                                                    <a href="{{ route('cursos.ver.validacion', $c->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-blue-200 bg-blue-50 text-[10px] font-bold text-blue-800 hover:bg-blue-100 transition">📄 Ver respuesta</a>
+                                                                                @else
+                                                                                    <span class="text-[10px] text-gray-400">Sin archivo</span>
+                                                                                @endif
+                                                                            </td>
+
+                                                                            <td class="px-3 py-3 text-center whitespace-nowrap">
                                                                                 @if($c->evidencia)
                                                                                     <button
                                                                                         type="button"
@@ -240,6 +256,7 @@
                                                                     @endforeach
                                                                 </tbody>
                                                             </table>
+                                                            </div>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -369,7 +386,6 @@
                                 <div><h4 class="text-xs font-black text-gray-800 uppercase tracking-wider">Cursos vigentes en el catálogo</h4><p class="text-[11px] text-gray-400 mt-0.5">Normativa aplicable para la acreditación anual.</p></div>
                                 <div class="relative max-w-xs w-full">
                                     <input type="text" id="input_buscar_curso" onkeyup="filtrarCursosCatalogo()" placeholder="Buscar en el catálogo..." class="w-full text-[11px] pl-8 pr-3 py-1.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] bg-white"/>
-                                    <span class="absolute left-2.5 top-2 text-xs text-gray-400">🔍</span>
                                 </div>
                             </div>
 
@@ -497,9 +513,18 @@
             document.getElementById('btn-' + seccion).className = "w-full text-left p-3.5 rounded-xl transition-all duration-150 flex items-center justify-between bg-[#691C32] text-white font-bold shadow-md cursor-pointer";
         }
 
-        function toggleCursos(idFila) {
+        function toggleCursos(idFila, boton) {
             const fila = document.getElementById(idFila);
-            if (fila) fila.classList.toggle('hidden');
+            if (!fila) return;
+
+            const scrollTop = window.scrollY;
+            const seAbre = fila.classList.contains('hidden');
+            fila.classList.toggle('hidden');
+            if (boton) boton.textContent = seAbre ? 'Ocultar Cursos ▴' : 'Ver Cursos ▾';
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => window.scrollTo(window.scrollX, scrollTop));
+            });
         }
 
         let estadoFiltroActual = 'todos';

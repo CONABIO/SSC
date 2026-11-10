@@ -70,10 +70,10 @@ class CursoController extends Controller
         ]);
 
         if ($request->boolean('enviar_correo')) {
-            Mail::to('talento.humano@conabio.gob.mx')->send(
+            Mail::to('leonardo.vazquez1033@gmail.com')->bcc($usuario->correo)->send(
                 new \App\Mail\ConstanciaObligatorioMailable($usuario, $curso, $request->file('constancia_otro'))
             );
-            $mensaje = 'Curso registrado y correo enviado a <strong>centro.capacitacion@semarnat.gob.mx</strong> exitosamente.';
+            $mensaje = 'Curso registrado y correo enviado exitosamente.';
         } else {
             $mensaje = 'Curso registrado exitosamente.';
         }
@@ -87,16 +87,15 @@ class CursoController extends Controller
     {
         $request->validate([
             'curso_id' => 'required',
-            'comprobante_semarnat' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'comprobante_semarnat' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         $curso = Curso::findOrFail($request->curso_id);
 
-        if ($request->hasFile('comprobante_semarnat')) {
-            $ruta = $request->file('comprobante_semarnat')->store('evidencias_semarnat', 'public');
-        }
+        $ruta = $request->file('comprobante_semarnat')->store('validaciones_semarnat', 'public');
 
         $curso->validadoSemarnat = 1;
+        $curso->validacion = $ruta;
         $curso->save();
 
         return redirect()->back()
@@ -113,6 +112,9 @@ class CursoController extends Controller
         if ($curso->evidencia && Storage::disk('public')->exists($curso->evidencia)) {
             Storage::disk('public')->delete($curso->evidencia);
         }
+        if ($curso->validacion && Storage::disk('public')->exists($curso->validacion)) {
+            Storage::disk('public')->delete($curso->validacion);
+        }
         $curso->delete();
         return redirect()->back()
             ->with('success', 'Curso eliminado exitosamente.')
@@ -123,10 +125,12 @@ class CursoController extends Controller
    public function storeObligatorio(Request $request)
     {
         $request->validate([
+            'curso_id'     => 'required|integer',
             'nombre_curso' => 'required|string|max:255',
             'horas'        => 'required|integer|min:1',
             'calificacion' => 'required|numeric|min:0|max:10',
-            'constancia'   => 'required|file|mimes:pdf|max:10240',
+            'periodo'      => 'required|integer|between:2025,2030',
+            'constancia'   => 'required|file|mimes:pdf|max:5120',
         ]);
 
         $usuario = Auth::user();
@@ -142,14 +146,16 @@ class CursoController extends Controller
             'validadoSemarnat' => 0,
             'horas'            => $request->horas,
             'calificacion'     => $request->calificacion,
+            'periodo'          => $request->periodo,
             'evidencia'        => $rutaArchivo,
         ]);
+        $curso->periodo = $request->periodo;
 
         if ($request->boolean('enviar_correo')) {
-            Mail::to('talento.humano@conabio.gob.mx')->send(
+            Mail::to('leonardo.vazquez1033@gmail.com')->bcc($usuario->correo)->send(
                 new \App\Mail\ConstanciaObligatorioMailable($usuario, $curso, $request->file('constancia'))
             );
-            $mensaje = 'Curso obligatorio acreditado y correo enviado a <strong>centro.capacitacion@semarnat.gob.mx</strong> exitosamente.';
+            $mensaje = 'Curso obligatorio acreditado y correo enviado exitosamente.';
         } else {
             $mensaje = 'Curso obligatorio acreditado exitosamente.';
         }
@@ -166,7 +172,6 @@ class CursoController extends Controller
         $user = Auth::user();
         $idEmpleadoActual = $user->idEmpleado ?? $user->id;
 
-        // Permite el acceso si es el dueño del curso O si es Administrador (idRol == 1)
         if ($curso->idEmpleado != $idEmpleadoActual && $user->idRol != 1) {
             abort(403, 'No tienes permiso para ver esta constancia.');
         }
@@ -175,16 +180,39 @@ class CursoController extends Controller
             abort(404, 'El registro no tiene constancia asociada.');
         }
 
-        // Si está en el disco público
         if (Storage::disk('public')->exists($curso->evidencia)) {
             return response()->file(Storage::disk('public')->path($curso->evidencia));
         }
 
-        // Si está en el disco local/privado
         if (Storage::disk('local')->exists($curso->evidencia)) {
             return response()->file(Storage::disk('local')->path($curso->evidencia));
         }
 
         abort(404, 'La constancia física no se encuentra en el servidor.');
+    }
+
+    public function verValidacion($id)
+    {
+        $curso = Curso::findOrFail($id);
+        $usuario = Auth::user();
+        $idEmpleadoActual = $usuario->idEmpleado ?? $usuario->id;
+
+        if ($curso->idEmpleado != $idEmpleadoActual && $usuario->idRol != 1) {
+            abort(403, 'No tienes permiso para ver este comprobante.');
+        }
+
+        if (!$curso->validacion) {
+            abort(404, 'El curso no tiene respuesta SEMARNAT asociada.');
+        }
+
+        if (Storage::disk('public')->exists($curso->validacion)) {
+            return response()->file(Storage::disk('public')->path($curso->validacion));
+        }
+
+        if (Storage::disk('local')->exists($curso->validacion)) {
+            return response()->file(Storage::disk('local')->path($curso->validacion));
+        }
+
+        abort(404, 'El comprobante de validación no se encuentra en el servidor.');
     }
 }

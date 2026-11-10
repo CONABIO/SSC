@@ -33,7 +33,7 @@ class RegisteredUserController extends Controller
             'email',
             'max:255',
             'unique:empleado,correo',
-            'ends_with:@conabio.gob.mx',
+            'regex:/^[A-Z0-9._%+-]+@semarnat\.gob\.mx$/i',
         ],
         'contrasena' => ['required', 'confirmed', Rules\Password::defaults()],
     ],
@@ -41,7 +41,7 @@ class RegisteredUserController extends Controller
         'contrasena.confirmed' => 'Las contraseñas no coinciden.',
         'contrasena.required'  => 'El campo de contraseña es obligatorio.',
         'correo.unique'    => 'Este correo electrónico ya fue registrado anteriormente.',
-        'correo.ends_with' => 'El correo debe pertenecer al dominio @conabio.gob.mx.',
+        'correo.regex' => 'El correo debe pertenecer al dominio @semarnat.gob.mx.',
         'idEmpleado.unique'    => 'El número de empleado que ingresaste ya fue registrado anteriormente',
     ]);
 

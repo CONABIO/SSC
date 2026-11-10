@@ -19,6 +19,8 @@ class Curso extends Model
         'validadoSemarnat',
         'horas',
         'calificacion',
+        'periodo',
         'evidencia',
+        'validacion',
     ];
 }

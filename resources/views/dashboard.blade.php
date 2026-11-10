@@ -11,6 +11,8 @@
     $obligatoriosEntregados = $todosLosCursos->where('obligatorio', 1)->pluck('nombre')->toArray();
     $obligatoriosCompletados = count($obligatoriosEntregados);
     $horasActuales = $todosLosCursos->sum('horas');
+    $cursosValidadosSemarnat = $todosLosCursos->where('validadoSemarnat', 1);
+    $horasValidadasSemarnat = $cursosValidadosSemarnat->sum('horas');
     $metaHoras = 40;
     $porcentajeHoras = min(100, max(0, round(($horasActuales / $metaHoras) * 100)));
     $obtenerIcono = function($nombre) {
@@ -82,14 +84,33 @@
                     </div>
 
                     <div class="p-4 rounded-2xl bg-amber-50/90 border border-amber-300 text-amber-900 shadow-sm space-y-2">
-                        <div class="flex items-center gap-2 text-[20px] font-black text-amber-950 tracking-wide">
-                            <svg class="w-8 h-8 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center gap-2 text-base font-black text-amber-950 tracking-wide">
+                            <svg class="w-6 h-6 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span>Aviso SEMARNAT</span>
+                            <span>Envío de constancias</span>
                         </div>
-                        <p class="text-[18px] leading-relaxed text-amber-900/90">Recuerda mandar todas tus constancias al correo oficial de la secretaría:</p>
-                        <a href="mailto:centro.capacitacion@semarnat.gob.mx" class="block text-[15px] font-black text-[#691C32] hover:underline break-all">centro.capacitacion@semarnat.gob.mx</a>
+                        <p class="text-sm leading-relaxed text-amber-900/90">El correo oficial para recibir las constancias y registrar las capacitaciones es:</p>
+                        <a href="mailto:centro.capacitacion@semarnat.gob.mx" class="block text-sm font-black text-[#691C32] hover:underline break-all">centro.capacitacion@semarnat.gob.mx</a>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-blue-50/80 border border-blue-200 text-blue-950 shadow-sm space-y-2">
+                        <div class="flex items-center gap-2 text-base font-black tracking-wide">
+                            <span class="text-lg flex-shrink-0">ℹ️</span>
+                            <span>Validación de cursos</span>
+                        </div>
+                        <p class="text-xs leading-relaxed text-blue-950/90">Al registrar un curso, debes enviar la constancia correspondiente a SEMARNAT para que pueda ser registrada y validada. Si no activas la opción de envío automático al cargar el curso, deberás remitirla manualmente desde tu cuenta de correo institucional SEMARNAT.</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold tracking-wider text-gray-500">Horas validadas por SEMARNAT</span>
+                            <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-sm">✓</span>
+                        </div>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span class="text-2xl font-black text-gray-900">{{ $horasValidadasSemarnat }} hrs</span>
+                            <span class="text-[11px] font-semibold text-emerald-600">{{ $cursosValidadosSemarnat->count() }} cursos</span>
+                        </div>
                     </div>
                 </aside>
 
@@ -104,7 +125,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-sm flex flex-col justify-between">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold tracking-wider text-gray-500">Cursos Obligatorios</span>
+                                <span class="text-[11px] font-bold tracking-wider text-gray-500">Cursos obligatorios 2025 - 2030</span>
                                 <span class="p-1.5 rounded-lg bg-amber-50 text-amber-700 text-sm">📋</span>
                             </div>
                             <div class="mt-2">
@@ -120,7 +141,7 @@
 
                         <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-sm flex flex-col justify-between">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold tracking-wider text-gray-500">Otros Cursos</span>
+                                <span class="text-[11px] font-bold tracking-wider text-gray-500">Otros cursos</span>
                                 <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/60 p-1 flex items-center justify-center shadow-sm">
                                     <svg viewBox="0 0 64 64" fill="none" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M12 43H52C53.6569 43 55 44.3431 55 46V47C55 48.6569 53.6569 50 52 50H12C10.3431 50 9 48.6569 9 47V46C9 44.3431 10.3431 43 12 43Z" fill="#D3DCE6" stroke="#111827" stroke-width="2.5" stroke-linejoin="round"/>
@@ -148,7 +169,7 @@
 
                         <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-sm flex flex-col justify-between">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold tracking-wider text-gray-500">Horas Acumuladas</span>
+                                <span class="text-[11px] font-bold tracking-wider text-gray-500">Horas cargadas</span>
                                 <span class="p-1.5 rounded-lg bg-[#691C32]/10 text-[#691C32] text-sm">⏱️</span>
                             </div>
                             <div class="mt-2">
@@ -167,7 +188,7 @@
                     <div id="sec-obligatorios" class="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
                         <div class="p-5 border-b border-gray-100 bg-gray-50/60 flex items-center justify-between">
                             <div>
-                                <h3 class="text-base font-black text-gray-900">Cursos Obligatorios 2026–2030</h3>
+                                <h3 class="text-base font-black text-gray-900">Cursos Obligatorios 2025 – 2030</h3>
                                 <p class="text-xs text-gray-500 mt-0.5">Para acceder a los cursos ingresa a la siguiente liga:
                                     <a href="https://capacitacion.buengobierno.gob.mx/login/index.php"  target="_blank"  rel="noopener noreferrer" class="font-bold text-[#691C32] hover:underline">https://capacitacion.buengobierno.gob.mx/login</a>
                                 </p>
@@ -287,7 +308,7 @@
                 <span class="text-xs font-bold text-gray-800">Enviar correo a Centro de Capacitación SEMARNAT</span>
             </label>
             <p class="text-[11px] text-amber-900 leading-relaxed pl-6.5">
-                <strong class="font-bold">Nota:</strong> Al hacer un curso es necesario mandar las constancias a SEMARNAT para que quede registrado y validado el curso, si prefieres mandarlo no selecciones la casilla, solo recuerda que para que el curso quede validado debe tener un acuse de recibido por parte de SEMARNAT
+                <strong class="font-bold">Nota:</strong>Para que el curso pueda considerarse validado, deberás contar con el acuse de recibido por parte de SEMARNAT. Si realizas el envío manual, asegúrate de conservar dicho acuse. De lo contrario, selecciona la casilla correspondiente para habilitar el envío automático de la constancia.
             </p>
         </div>
 
@@ -403,6 +424,7 @@
                                             <th class="py-3 px-4 text-center">Horas</th>
                                             <th class="py-3 px-4 text-center">Calificación</th>
                                             <th class="py-3 px-4 text-center">Constancia Original</th>
+                                            <th class="py-3 px-4 text-center">Respuesta SEMARNAT</th>
                                             <th class="py-3 px-4 text-center">Estado SEMARNAT</th>
                                             <th class="py-3 px-4 text-center">Acción</th>
                                         </tr>
@@ -425,6 +447,15 @@
                                                     <span class="px-2 py-0.5 rounded font-black bg-gray-100 text-gray-800 text-[11px]">
                                                         {{ $curso->calificacion }}
                                                     </span>
+                                                </td>
+                                                <td class="py-3.5 px-4 text-center">
+                                                    @if($curso->validacion)
+                                                        <a href="{{ route('cursos.ver.validacion', $curso->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 hover:bg-blue-100 font-bold text-[11px] border border-blue-200 transition">
+                                                            <span>Ver respuesta</span>
+                                                        </a>
+                                                    @else
+                                                        <span class="text-gray-400 text-[11px] italic">Sin respuesta</span>
+                                                    @endif
                                                 </td>
                                                 <td class="py-3.5 px-4 text-center">
                                                     @if($curso->evidencia)
@@ -503,16 +534,27 @@
                 <input type="hidden" id="modal_curso_nombre" name="nombre_curso" value="">
                 <input type="hidden" id="modal_curso_horas" name="horas" value="">
                 <div>
+                    <label for="modal_curso_periodo" class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Periodo</label>
+                    <select id="modal_curso_periodo" name="periodo" required class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3">
+                        <option value="" disabled selected>Selecciona el periodo</option>
+                        @foreach(range(2025, 2030) as $periodo)
+                            <option value="{{ $periodo }}">{{ $periodo }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Horas de capacitación</label>
                     <input type="number" id="modal_curso_horas_vista" disabled class="w-full text-sm rounded-lg border border-gray-200 bg-gray-100 text-gray-600 font-bold cursor-not-allowed select-none py-2 px-3"/>
                 </div>
                 <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Calificación obtenida</label>
                     <input type="number" step="0.01" min="0" max="10" name="calificacion" placeholder="Ej. 10" required class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3" oninput="if(parseFloat(this.value) > 10) this.value = 10; if(parseFloat(this.value) < 0) this.value = 0;" />
+                    <p class="text-[11px] text-amber-900 leading-relaxed pl-6.5">
+                        <strong class="font-bold">Nota:</strong> Si la calificación obtenida está expresada en una escala de hasta 100 puntos, deberás convertirla a una escala de 10, utilizando únicamente un decimal. Por ejemplo, si obtuviste 99 puntos, deberás capturar 9.9.
                 </div>
                 <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Adjuntar Constancia (PDF)</label>
-                    <input type="file" name="constancia" accept=".pdf" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#691C32]/10 file:text-[#691C32] hover:file:bg-[#691C32]/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50" />
+                    <input type="file" id="modal_constancia" name="constancia" accept=".pdf" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#691C32]/10 file:text-[#691C32] hover:file:bg-[#691C32]/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50" />
                 </div>
                 <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 space-y-1">
                     <label class="flex items-center gap-2.5 cursor-pointer select-none">
@@ -520,7 +562,7 @@
                         <span class="text-xs font-bold text-gray-800">Enviar correo a Centro de Capacitación SEMARNAT</span>
                     </label>
                     <p class="text-[11px] text-amber-900 leading-relaxed pl-6.5">
-                        <strong class="font-bold">Nota:</strong> Al hacer un curso es necesario mandar las constancias a SEMARNAT para que quede registrado y validado el curso, si prefieres mandarlo no selecciones la casilla, solo recuerda que para que el curso quede validado debe tener un acuse de recibido por parte de SEMARNAT.
+                        <strong class="font-bold">Nota:</strong> Para que el curso pueda considerarse validado, deberás contar con el acuse de recibido por parte de SEMARNAT. Si realizas el envío manual, asegúrate de conservar dicho acuse. De lo contrario, selecciona la casilla correspondiente para habilitar el envío automático de la constancia.
                     </p>
                 </div>
                 <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
@@ -554,8 +596,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Cargar PDF de respuesta (Correo o Acuse SEMARNAT):</label>
-                    <input type="file" name="comprobante_semarnat" accept=".pdf,.png,.jpg,.jpeg" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-700/10 file:text-blue-800 hover:file:bg-blue-700/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50"/>
-                    <p class="text-[10px] text-gray-400 mt-1">Al subir este archivo el curso se actualizará automáticamente como <strong>Validado (1)</strong>.</p>
+                    <input type="file" id="modal_comprobante_semarnat" name="comprobante_semarnat" accept=".pdf,.png,.jpg,.jpeg" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-700/10 file:text-blue-800 hover:file:bg-blue-700/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50"/>
                 </div>
 
                 <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
@@ -659,6 +700,25 @@
     @endphp
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const constanciaInput = document.getElementById('modal_constancia');
+            const comprobanteInput = document.getElementById('modal_comprobante_semarnat');
+            const validarPesoArchivo = (input) => input.addEventListener('change', function () {
+                const archivo = this.files[0];
+                const limiteBytes = 5 * 1024 * 1024;
+                if (archivo && archivo.size > limiteBytes) {
+                    this.value = '';
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Archivo demasiado grande',
+                        text: 'La constancia no debe superar los 5 MB. Selecciona un archivo más pequeño.',
+                        confirmButtonColor: '#691C32',
+                        confirmButtonText: 'Entendido'
+                    });
+                }
+            });
+            validarPesoArchivo(constanciaInput);
+            validarPesoArchivo(comprobanteInput);
+
             @if($mostrarAlertaLogin)
                 Swal.fire({
                     title: '¡Cursos obligatorios!',
@@ -667,8 +727,8 @@
                             <p class="text-sm text-gray-600">
                                 Estimado(a) trabajador(a), actualmente cuentas con <strong class="text-amber-700">{{$obligatoriosCompletados}} de {{ count($cursosCatalogo) }} cursos obligatorios</strong> acreditados para el ciclo normativo.
                             </p>
-                            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
-                                ⚠️ <strong>Recuerda:</strong> Es indispensable cursar y cargar tus constancias oficiales para dar cumplimiento a los lineamientos institucionales de <strong>CONABIO</strong>.
+                            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-900 leading-relaxed">
+                                ⚠️ <strong>Recuerda:</strong> La capacitación y actualización de conocimientos es una obligación de las personas servidoras públicas.</strong>.
                             </div>
                         </div>
                     `,
