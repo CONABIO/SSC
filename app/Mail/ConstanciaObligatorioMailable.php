@@ -27,7 +27,7 @@ class ConstanciaObligatorioMailable extends Mailable
         $correoEmpleado = $this->usuario->correo;
         $periodo = $this->curso->periodo ?? date('Y');
 
-        return $this->replyTo($correoEmpleado, $nombreCompleto)
+        return $this->from($correoEmpleado, $nombreCompleto)
                     ->subject('Constancia de curso')
                     ->html("
                         <div style='font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.8; color: #222;'>
