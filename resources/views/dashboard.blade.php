@@ -260,66 +260,78 @@
 
                         <div class="p-6 space-y-8">
                             <form action="{{ route('cursos.store.otro') }}" method="POST" enctype="multipart/form-data" class="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
-    @csrf
-    <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
-        <div class="sm:col-span-6">
-            <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
-                Nombre del curso:
-            </label>
-            <input id="input_nombre_curso" type="text" name="nombre_curso" placeholder="Ej. Análisis de Cobertura Vegetal con SIG" required
-                class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white" />
-        </div>
+                            @csrf
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                                <div class="sm:col-span-6">
+                                    <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
+                                        Nombre del curso:
+                                    </label>
+                                    <input id="input_nombre_curso" type="text" name="nombre_curso" placeholder="Ej. Análisis de Cobertura Vegetal con SIG" required
+                                        class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white" />
+                                </div>
 
-        <div class="sm:col-span-3">
-            <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
-                Horas de capacitación:
-            </label>
-            <input id="input_horas" type="number" min="1" name="horas" placeholder="Ej. 40" required
-                class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white" />
-        </div>
+                                <div class="sm:col-span-3">
+                                    <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
+                                        Horas de capacitación:
+                                    </label>
+                                    <input id="input_horas" type="number" min="1" name="horas" placeholder="Ej. 40" required
+                                        class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white" />
+                                </div>
 
-        <div class="sm:col-span-3">
-            <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
-                Calificación:
-            </label>
-            <input id="input_calificacion" type="number" step="0.01" min="0" max="10" name="calificacion" placeholder="Ej. 9.5" required
-                class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white" />
-        </div>
+                                <div class="sm:col-span-3">
+                                    <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
+                                        Calificación:
+                                    </label>
+                                    <input id="input_calificacion" type="number" step="0.01" min="0" max="10" name="calificacion" placeholder="Ej. 9.5" required
+                                        class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white" />
+                                </div>
 
-        <div class="sm:col-span-12">
-            <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
-                Adjuntar Constancia (PDF):
-            </label>
-            <input
-                id="archivo_constancia"
-                type="file"
-                name="constancia_otro"
-                accept=".pdf"
-                onchange="leerDatosConstancia(this)"
-                required
-                class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#691C32]/10 file:text-[#691C32] hover:file:bg-[#691C32]/20 cursor-pointer border border-gray-200 rounded-lg bg-white"
-            />
-        </div>
+                                <div class="sm:col-span-4">
+                                    <label for="input_periodo" class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
+                                        Periodo:
+                                    </label>
+                                    <select id="input_periodo" name="periodo" required
+                                        class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white">
+                                        <option value="" disabled selected>Selecciona el periodo</option>
+                                        @foreach(range(2025, 2030) as $periodo)
+                                            <option value="{{ $periodo }}">{{ $periodo }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-        {{-- CASILLA DE ENVÍO DE CORREO A SEMARNAT --}}
-        <div class="sm:col-span-12 p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 space-y-1">
-            <label class="flex items-center gap-2.5 cursor-pointer select-none">
-                <input type="checkbox" name="enviar_correo" id="otro_enviar_correo" value="1" class="rounded border-gray-300 text-[#691C32] focus:ring-[#691C32] w-4 h-4 cursor-pointer"/>
-                <span class="text-xs font-bold text-gray-800">Enviar correo a Centro de Capacitación SEMARNAT</span>
-            </label>
-            <p class="text-[11px] text-amber-900 leading-relaxed pl-6.5">
-                <strong class="font-bold">Nota:</strong>Para que el curso pueda considerarse validado, deberás contar con el acuse de recibido por parte de SEMARNAT. Si realizas el envío manual, asegúrate de conservar dicho acuse. De lo contrario, selecciona la casilla correspondiente para habilitar el envío automático de la constancia.
-            </p>
-        </div>
+                                <div class="sm:col-span-8">
+                                    <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
+                                        Adjuntar Constancia (PDF):
+                                    </label>
+                                    <input
+                                        id="archivo_constancia"
+                                        type="file"
+                                        name="constancia_otro"
+                                        accept=".pdf"
+                                        onchange="leerDatosConstancia(this)"
+                                        required
+                                        class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#691C32]/10 file:text-[#691C32] hover:file:bg-[#691C32]/20 cursor-pointer border border-gray-200 rounded-lg bg-white"
+                                    />
+                                </div>
 
-        <div class="sm:col-span-12 flex justify-end">
-            <button type="submit"
-                class="py-2.5 px-6 rounded-lg bg-[#691C32] hover:bg-[#480b1e] text-white font-bold text-xs shadow transition flex items-center justify-center gap-2 cursor-pointer">
-                <span>Registrar Curso</span>
-            </button>
-        </div>
-    </div>
-</form>
+                                <div class="sm:col-span-12 p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 space-y-1">
+                                    <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                                        <input type="checkbox" name="enviar_correo" id="otro_enviar_correo" value="1" class="rounded border-gray-300 text-[#691C32] focus:ring-[#691C32] w-4 h-4 cursor-pointer"/>
+                                        <span class="text-xs font-bold text-gray-800">Enviar correo a Centro de Capacitación SEMARNAT</span>
+                                    </label>
+                                    <p class="text-[11px] text-amber-900 leading-relaxed pl-6.5">
+                                        <strong class="font-bold">Nota:</strong>Para que el curso pueda considerarse validado, deberás contar con el acuse de recibido por parte de SEMARNAT. Si realizas el envío manual, asegúrate de conservar dicho acuse. De lo contrario, selecciona la casilla correspondiente para habilitar el envío automático de la constancia.
+                                    </p>
+                                </div>
+
+                                <div class="sm:col-span-12 flex justify-end">
+                                    <button type="submit"
+                                        class="py-2.5 px-6 rounded-lg bg-[#691C32] hover:bg-[#480b1e] text-white font-bold text-xs shadow transition flex items-center justify-center gap-2 cursor-pointer">
+                                        <span>Registrar Curso</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
 
                             <div class="border-t border-gray-100 pt-6">
                                 <div class="flex items-center justify-between mb-4">
