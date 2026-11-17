@@ -65,6 +65,7 @@ class CursoController extends Controller
             'obligatorio'      => 0,
             'validadoSemarnat' => 0,
             'horas'            => $request->horas,
+            'periodo'          => $request->periodo,
             'calificacion'     => $request->calificacion,
             'evidencia'        => $rutaArchivo,
         ]);
