@@ -71,7 +71,7 @@ class CursoController extends Controller
         ]);
 
         if ($request->boolean('enviar_correo')) {
-            Mail::to('talento.humano@conabio.gob.mx')->bcc($usuario->correo)->send(
+            Mail::to('leonardo.vazquez1033@gmail.com')->bcc($usuario->correo)->send(
                 new \App\Mail\ConstanciaObligatorioMailable($usuario, $curso, $request->file('constancia_otro'))
             );
             $mensaje = 'Constancia enviada a talento.humano@conabio.gob.mx, con copia oculta al correo registrado del usuario.';
@@ -153,7 +153,7 @@ class CursoController extends Controller
         $curso->periodo = $request->periodo;
 
         if ($request->boolean('enviar_correo')) {
-            Mail::to('talento.humano@conabio.gob.mx')->bcc($usuario->correo)->send(
+            Mail::to('leonardo.vazquez1033@gmail.com')->bcc($usuario->correo)->send(
                 new \App\Mail\ConstanciaObligatorioMailable($usuario, $curso, $request->file('constancia'))
             );
             $mensaje = 'Constancia enviada a talento.humano@conabio.gob.mx, con copia oculta al correo registrado del usuario.';
