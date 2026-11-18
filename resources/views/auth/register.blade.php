@@ -73,10 +73,10 @@
                         <label for="idEmpleado" class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
                             Número de Empleado
                         </label>
-                        <input id="idEmpleado" type="number" name="idEmpleado" value="{{ old('idEmpleado') }}"
-                            min="1" max="1000000000" step="1"
-                            placeholder="Ej. 1045" required autofocus
-                            class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
+                        <input id="idEmpleado" type="text" inputmode="numeric" name="idEmpleado" value="{{ old('idEmpleado') }}"
+                        maxlength="6" placeholder="Ej. 1045" required autofocus
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);"
+                        class="block w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
                     </div>
 
                     <div>

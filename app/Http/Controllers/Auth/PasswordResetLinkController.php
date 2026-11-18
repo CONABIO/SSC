@@ -25,20 +25,30 @@ class PasswordResetLinkController extends Controller
      * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
-{
-    // 1. Validar el campo 'correo'
-    $request->validate([
-        'correo' => ['required', 'email'],
-    ]);
+    {
+        $request->validate([
+            'correo' => ['required', 'email'],
+        ], [
+            'correo.required' => 'El correo institucional es obligatorio.',
+            'correo.email'    => 'Ingresa un formato de correo electrónico válido.',
+        ]);
 
-    // 2. Buscar por 'correo' en la base de datos
-    $status = Password::sendResetLink(
-        $request->only('correo')
-    );
+        $status = Password::sendResetLink(
+            $request->only('correo')
+        );
 
-    return $status == Password::RESET_LINK_SENT
-                ? back()->with('status', __($status))
-                : back()->withInput($request->only('correo'))
-                        ->withErrors(['correo' => __($status)]);
-}
+        if ($status == Password::RESET_LINK_SENT) {
+            return back()->with('status', 'Hemos enviado a tu correo institucional el enlace para restablecer tu contraseña.');
+        }
+
+        $mensajeError = match ($status) {
+            Password::INVALID_USER    => 'No encontramos ningún usuario registrado con ese correo electrónico.',
+            Password::RESET_THROTTLED => 'Por favor espera unos momentos antes de volver a intentarlo.',
+            default                   => 'No se pudo enviar el enlace de recuperación. Intenta de nuevo.',
+        };
+
+        return back()
+            ->withInput($request->only('correo'))
+            ->withErrors(['correo' => $mensajeError]);
+    }
 }
