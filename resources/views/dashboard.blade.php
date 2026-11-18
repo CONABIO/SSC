@@ -9,6 +9,7 @@
     $otrosCursos = $todosLosCursos->where('obligatorio', 0);
     $cursosBD = $otrosCursos;
     $obligatoriosEntregados = $todosLosCursos->where('obligatorio', 1)->pluck('nombre')->toArray();
+    $cursosObligatoriosMap = $todosLosCursos->where('obligatorio', 1)->keyBy('nombre');
     $obligatoriosCompletados = count($obligatoriosEntregados);
     $horasActuales = $todosLosCursos->sum('horas');
     $cursosValidadosSemarnat = $todosLosCursos->where('validadoSemarnat', 1);
@@ -36,7 +37,7 @@
                                 Módulos del Expediente
                             </span>
                         </div>
-                        <button id="btn-obligatorios" type="button" onclick="cambiarSeccion('obligatorios')"class="w-full text-left p-3.5 rounded-xl transition-all duration-150 flex items-center justify-between bg-[#691C32] text-white font-bold shadow-md">
+                        <button id="btn-obligatorios" type="button" onclick="cambiarSeccion('obligatorios')" class="w-full text-left p-3.5 rounded-xl transition-all duration-150 flex items-center justify-between bg-[#691C32] text-white font-bold shadow-md">
                             <div class="flex items-center gap-3">
                                 <span class="text-lg">📋</span>
                                 <div>
@@ -178,8 +179,7 @@
                                     <span class="text-[11px] font-semibold {{ $horasActuales >= $metaHoras ? 'text-emerald-600' : 'text-[#691C32]' }}">{{ $horasActuales >= $metaHoras ? 'Cumplido' : 'Ciclo 2026' }}</span>
                                 </div>
                                 <div class="w-full bg-gray-100 h-1.5 rounded-full mt-2 overflow-hidden">
-                                    <div class="bg-[#691C32] h-1.5 rounded-full transition-all duration-500" style="width: {{ $porcentajeHoras }}%"
-                                    ></div>
+                                    <div class="bg-[#691C32] h-1.5 rounded-full transition-all duration-500" style="width: {{ $porcentajeHoras }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -190,7 +190,7 @@
                             <div>
                                 <h3 class="text-base font-black text-gray-900">Cursos Obligatorios 2025 – 2030</h3>
                                 <p class="text-xs text-gray-500 mt-0.5">Para acceder a los cursos ingresa a la siguiente liga:
-                                    <a href="https://capacitacion.buengobierno.gob.mx/login/index.php"  target="_blank"  rel="noopener noreferrer" class="font-bold text-[#691C32] hover:underline">https://capacitacion.buengobierno.gob.mx/login</a>
+                                    <a href="https://capacitacion.buengobierno.gob.mx/login/index.php" target="_blank" rel="noopener noreferrer" class="font-bold text-[#691C32] hover:underline">https://capacitacion.buengobierno.gob.mx/login</a>
                                 </p>
                                 <p class="text-xs text-gray-500 mt-0.5">Haz clic en la tarjeta del curso para capturar tus horas, calificación y constancia.</p>
                             </div>
@@ -199,7 +199,8 @@
                         <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             @forelse($cursosCatalogo as $curso)
                                 @php
-                                    $yaEntregado = in_array($curso->nombre, $obligatoriosEntregados ?? []);
+                                    $cursoEntregado = $cursosObligatoriosMap->get($curso->nombre);
+                                    $yaEntregado = $cursoEntregado !== null;
                                 @endphp
                                 <div
                                     @if(!$yaEntregado)
@@ -234,13 +235,29 @@
                                     </div>
 
                                     <div class="mt-4 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px] font-bold {{ $yaEntregado ? 'text-green-700' : 'text-[#691C32]' }}">
-                                        <span>{{ $yaEntregado ? 'Constancia cargada' : 'Capturar Constancia' }}</span>
+                                        <span>{{ $yaEntregado ? 'Constancia cargada ✓' : 'Capturar Constancia' }}</span>
+
                                         @if(!$yaEntregado)
                                             <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                             </svg>
+                                        @elseif($cursoEntregado->validadoSemarnat != 1)
+                                            <form id="form-eliminar-ob-{{ $cursoEntregado->id }}" action="{{ route('cursos.destroy', $cursoEntregado->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button
+                                                    type="button"
+                                                    onclick="confirmarEliminarCurso({{ $cursoEntregado->id }}, '{{ addslashes($curso->nombre) }}', 'form-eliminar-ob-')"
+                                                    class="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition cursor-pointer"
+                                                    title="Eliminar constancia y volver a subir"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
                                         @else
-                                            <span>✓</span>
+                                            <span class="text-[10px] text-emerald-700">Validado</span>
                                         @endif
                                     </div>
                                 </div>
@@ -292,13 +309,9 @@
                                     </label>
                                     <select id="input_periodo" name="periodo" required
                                         class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white">
-                                        <option value="" disabled selected>Selecciona el periodo</option>
-                                        @foreach(range(2025, 2030) as $periodo)
-                                            <option value="{{ $periodo }}">{{ $periodo }}</option>
-                                        @endforeach
+                                        <option value="{{ date('Y') }}" selected>{{ date('Y') }}</option>
                                     </select>
                                 </div>
-
                                 <div class="sm:col-span-8">
                                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
                                         Adjuntar Constancia (PDF):
@@ -307,11 +320,31 @@
                                         id="archivo_constancia"
                                         type="file"
                                         name="constancia_otro"
-                                        accept=".pdf"
+                                        accept=".pdf,application/pdf"
                                         onchange="leerDatosConstancia(this)"
                                         required
                                         class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#691C32]/10 file:text-[#691C32] hover:file:bg-[#691C32]/20 cursor-pointer border border-gray-200 rounded-lg bg-white"
                                     />
+                                </div>
+
+                                <div id="preview_otro_box" class="hidden sm:col-span-12 rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+                                    <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <span class="text-xs">📄</span>
+                                            <span id="preview_otro_nombre" class="text-[11px] font-bold text-gray-700 truncate"></span>
+                                        </div>
+                                        <div class="flex items-center gap-3 flex-shrink-0">
+                                            <a id="preview_otro_abrir" href="#" target="_blank" rel="noopener noreferrer"
+                                                class="text-[11px] font-bold text-[#691C32] hover:underline">
+                                                Ampliar ↗
+                                            </a>
+                                            <button type="button" onclick="limpiarPreviewOtro(true)"
+                                                class="text-[11px] font-bold text-red-600 hover:text-red-800 cursor-pointer">
+                                                Quitar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <iframe id="preview_otro_frame" class="w-full h-64 bg-white" title="Vista previa de constancia PDF"></iframe>
                                 </div>
 
                                 <div class="sm:col-span-12 p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 space-y-1">
@@ -423,7 +456,7 @@
                                 <p class="text-xs text-gray-500 mt-0.5">Valida tus cursos registrados cargando la respuesta o correo oficial de confirmación de SEMARNAT.</p>
                             </div>
                             <span class="text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 self-start sm:self-auto">
-                                {{ count($cursosBD) }} cursos registrados
+                                {{ count($todosLosCursos) }} cursos registrados
                             </span>
                         </div>
 
@@ -461,15 +494,6 @@
                                                     </span>
                                                 </td>
                                                 <td class="py-3.5 px-4 text-center">
-                                                    @if($curso->validacion)
-                                                        <a href="{{ route('cursos.ver.validacion', $curso->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 hover:bg-blue-100 font-bold text-[11px] border border-blue-200 transition">
-                                                            <span>Ver respuesta</span>
-                                                        </a>
-                                                    @else
-                                                        <span class="text-gray-400 text-[11px] italic">Sin respuesta</span>
-                                                    @endif
-                                                </td>
-                                                <td class="py-3.5 px-4 text-center">
                                                     @if($curso->evidencia)
                                                         <a href="{{ route('cursos.ver.evidencia', $curso->id) }}" target="_blank"
                                                         class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-rose-50 text-[#691C32] hover:bg-rose-100 font-bold text-[11px] border border-rose-200 transition">
@@ -477,6 +501,15 @@
                                                         </a>
                                                     @else
                                                         <span class="text-gray-400 text-[11px] italic">Sin constancia</span>
+                                                    @endif
+                                                </td>
+                                                <td class="py-3.5 px-4 text-center">
+                                                    @if($curso->validacion)
+                                                        <a href="{{ route('cursos.ver.validacion', $curso->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 hover:bg-blue-100 font-bold text-[11px] border border-blue-200 transition">
+                                                            <span>Ver respuesta</span>
+                                                        </a>
+                                                    @else
+                                                        <span class="text-gray-400 text-[11px] italic">Sin respuesta</span>
                                                     @endif
                                                 </td>
                                                 <td class="py-3.5 px-4 text-center">
@@ -501,18 +534,35 @@
                                                             <span>Validado</span>
                                                         </span>
                                                     @else
-                                                        <button type="button" onclick="abrirModalSemarnat('{{ $curso->id }}', '{{ addslashes($curso->nombre) }}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-800 hover:bg-blue-900 text-white font-bold text-[11px] shadow-sm transition hover:shadow cursor-pointer">
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                            </svg>
-                                                            <span>Validar</span>
-                                                        </button>
+                                                        <div class="flex items-center justify-center gap-1.5">
+                                                            <button type="button" onclick="abrirModalSemarnat('{{ $curso->id }}', '{{ addslashes($curso->nombre) }}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-800 hover:bg-blue-900 text-white font-bold text-[11px] shadow-sm transition hover:shadow cursor-pointer">
+                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                <span>Validar</span>
+                                                            </button>
+
+                                                            <form id="form-eliminar-sem-{{ $curso->id }}" action="{{ route('cursos.destroy', $curso->id) }}" method="POST" class="inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button
+                                                                    type="button"
+                                                                    onclick="confirmarEliminarCurso({{ $curso->id }}, '{{ addslashes($curso->nombre) }}', 'form-eliminar-sem-')"
+                                                                    class="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition cursor-pointer"
+                                                                    title="Eliminar curso"
+                                                                >
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    </svg>
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                     @endif
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="text-center py-8 text-gray-400 text-xs">
+                                                <td colspan="7" class="text-center py-8 text-gray-400 text-xs">
                                                     No tienes cursos registrados en la base de datos aún. Registra cursos primero en la pestaña "Otros Cursos".
                                                 </td>
                                             </tr>
@@ -528,8 +578,8 @@
     </div>
 
     <div id="modal_curso" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-gray-200">
-            <div class="bg-gradient-to-r from-[#46081c] to-[#691C32] text-white p-5 flex items-start justify-between">
+        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-gray-200">
+            <div class="bg-gradient-to-r from-[#46081c] to-[#691C32] text-white p-5 flex items-start justify-between flex-shrink-0">
                 <div>
                     <span class="text-[10px] font-bold tracking-widest text-[#D4C19C]">Registro de Avance</span>
                     <h3 id="modal_curso_titulo" class="text-base font-extrabold mt-0.5 leading-snug"></h3>
@@ -540,34 +590,61 @@
                     </svg>
                 </button>
             </div>
-            <form action="{{ route('cursos.store.obligatorio') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+
+            <form action="{{ route('cursos.store.obligatorio') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4 overflow-y-auto">
                 @csrf
                 <input type="hidden" id="modal_curso_id" name="curso_id" value="">
                 <input type="hidden" id="modal_curso_nombre" name="nombre_curso" value="">
                 <input type="hidden" id="modal_curso_horas" name="horas" value="">
+
                 <div>
                     <label for="modal_curso_periodo" class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Periodo</label>
-                    <select id="modal_curso_periodo" name="periodo" required class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3">
-                        <option value="" disabled selected>Selecciona el periodo</option>
-                        @foreach(range(2025, 2030) as $periodo)
-                            <option value="{{ $periodo }}">{{ $periodo }}</option>
-                        @endforeach
+                    <select id="modal_curso_periodo" name="periodo" required
+                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3">
+                        <option value="{{ date('Y') }}" selected>{{ date('Y') }}</option>
                     </select>
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Horas de capacitación</label>
                     <input type="number" id="modal_curso_horas_vista" disabled class="w-full text-sm rounded-lg border border-gray-200 bg-gray-100 text-gray-600 font-bold cursor-not-allowed select-none py-2 px-3"/>
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Calificación obtenida</label>
                     <input type="number" step="0.01" min="0" max="10" name="calificacion" placeholder="Ej. 10" required class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3" oninput="if(parseFloat(this.value) > 10) this.value = 10; if(parseFloat(this.value) < 0) this.value = 0;" />
-                    <p class="text-[11px] text-amber-900 leading-relaxed pl-6.5">
+                    <p class="text-[11px] text-amber-900 leading-relaxed mt-1">
                         <strong class="font-bold">Nota:</strong> Si la calificación obtenida está expresada en una escala de hasta 100 puntos, deberás convertirla a una escala de 10, utilizando únicamente un decimal. Por ejemplo, si obtuviste 99 puntos, deberás capturar 9.9.
+                    </p>
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Adjuntar Constancia (PDF)</label>
-                    <input type="file" id="modal_constancia" name="constancia" accept=".pdf" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#691C32]/10 file:text-[#691C32] hover:file:bg-[#691C32]/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50" />
+                    <input type="file" id="modal_constancia" name="constancia" accept=".pdf,application/pdf" required
+                        class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#691C32]/10 file:text-[#691C32] hover:file:bg-[#691C32]/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50" />
+
+                    <!-- Mini visor de PDF -->
+                    <div id="preview_constancia_box" class="hidden mt-3 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden shadow-sm">
+                        <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="text-xs">📄</span>
+                                <span id="preview_constancia_nombre" class="text-[11px] font-bold text-gray-700 truncate"></span>
+                            </div>
+                            <div class="flex items-center gap-3 flex-shrink-0">
+                                <a id="preview_constancia_abrir" href="#" target="_blank" rel="noopener noreferrer"
+                                    class="text-[11px] font-bold text-[#691C32] hover:underline">
+                                    Ampliar ↗
+                                </a>
+                                <button type="button" onclick="limpiarPreviewConstancia(true)"
+                                    class="text-[11px] font-bold text-red-600 hover:text-red-800 cursor-pointer">
+                                    Quitar
+                                </button>
+                            </div>
+                        </div>
+                        <iframe id="preview_constancia_frame" class="w-full h-56 bg-white" title="Vista previa de constancia PDF"></iframe>
+                    </div>
                 </div>
+
                 <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 space-y-1">
                     <label class="flex items-center gap-2.5 cursor-pointer select-none">
                         <input type="checkbox" name="enviar_correo" id="modal_enviar_correo" value="1" class="rounded border-gray-300 text-[#691C32] focus:ring-[#691C32] w-4 h-4 cursor-pointer"/>
@@ -577,6 +654,7 @@
                         <strong class="font-bold">Nota:</strong> Para que el curso pueda considerarse validado, deberás contar con el acuse de recibido por parte de SEMARNAT. Si realizas el envío manual, asegúrate de conservar dicho acuse. De lo contrario, selecciona la casilla correspondiente para habilitar el envío automático de la constancia.
                     </p>
                 </div>
+
                 <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
                     <button type="button" onclick="cerrarModalCurso()" class="px-4 py-2 rounded-lg border border-gray-300 text-xs font-bold text-gray-600 hover:bg-gray-100 transition">Cancelar</button>
                     <button type="submit" class="px-5 py-2 rounded-lg bg-[#691C32] hover:bg-[#480b1e] text-white text-xs font-bold shadow transition">Guardar Acreditación</button>
@@ -625,6 +703,51 @@
     </div>
 
     <script>
+        let previewBlobUrl = null;
+        let previewOtroBlobUrl = null;
+
+        function limpiarPreviewConstancia(limpiarInput = false) {
+            const box = document.getElementById('preview_constancia_box');
+            const frame = document.getElementById('preview_constancia_frame');
+            const nombre = document.getElementById('preview_constancia_nombre');
+            const abrir = document.getElementById('preview_constancia_abrir');
+
+            if (previewBlobUrl) {
+                URL.revokeObjectURL(previewBlobUrl);
+                previewBlobUrl = null;
+            }
+
+            frame.src = 'about:blank';
+            nombre.textContent = '';
+            abrir.href = '#';
+            box.classList.add('hidden');
+
+            if (limpiarInput) {
+                document.getElementById('modal_constancia').value = '';
+            }
+        }
+
+        function limpiarPreviewOtro(limpiarInput = false) {
+            const box = document.getElementById('preview_otro_box');
+            const frame = document.getElementById('preview_otro_frame');
+            const nombre = document.getElementById('preview_otro_nombre');
+            const abrir = document.getElementById('preview_otro_abrir');
+
+            if (previewOtroBlobUrl) {
+                URL.revokeObjectURL(previewOtroBlobUrl);
+                previewOtroBlobUrl = null;
+            }
+
+            frame.src = 'about:blank';
+            nombre.textContent = '';
+            abrir.href = '#';
+            box.classList.add('hidden');
+
+            if (limpiarInput) {
+                document.getElementById('archivo_constancia').value = '';
+            }
+        }
+
         function cambiarSeccion(seccion) {
             document.getElementById('sec-obligatorios').classList.add('hidden');
             document.getElementById('sec-otros').classList.add('hidden');
@@ -639,6 +762,7 @@
         }
 
         function abrirModalCurso(id, titulo, horas) {
+            limpiarPreviewConstancia(true);
             document.getElementById('modal_curso_id').value = id;
             document.getElementById('modal_curso_titulo').innerText = titulo;
             document.getElementById('modal_curso_nombre').value = titulo;
@@ -648,6 +772,7 @@
         }
 
         function cerrarModalCurso() {
+            limpiarPreviewConstancia(true);
             document.getElementById('modal_curso').classList.add('hidden');
         }
 
@@ -662,7 +787,7 @@
             document.getElementById('modal_semarnat').classList.add('hidden');
         }
 
-        function confirmarEliminarCurso(id, nombre) {
+        function confirmarEliminarCurso(id, nombre, prefijo = 'form-eliminar-') {
             Swal.fire({
                 title: '¿Eliminar curso?',
                 html: `¿Estás seguro de que deseas eliminar el curso <strong>"${nombre}"</strong>?<br><span class="text-xs text-red-500">Esta acción no se puede deshacer.</span>`,
@@ -680,7 +805,7 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('form-eliminar-' + id).submit();
+                    document.getElementById(prefijo + id).submit();
                 }
             });
         }
@@ -713,10 +838,86 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const constanciaInput = document.getElementById('modal_constancia');
+            const archivoOtroInput = document.getElementById('archivo_constancia');
             const comprobanteInput = document.getElementById('modal_comprobante_semarnat');
-            const validarPesoArchivo = (input) => input.addEventListener('change', function () {
+            const limiteBytes = 5 * 1024 * 1024;
+
+            constanciaInput.addEventListener('change', function () {
                 const archivo = this.files[0];
-                const limiteBytes = 5 * 1024 * 1024;
+                limpiarPreviewConstancia(false);
+
+                if (!archivo) return;
+
+                if (archivo.type !== 'application/pdf' && !archivo.name.toLowerCase().endsWith('.pdf')) {
+                    this.value = '';
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Formato no válido',
+                        text: 'La constancia debe estar en formato PDF.',
+                        confirmButtonColor: '#691C32',
+                        confirmButtonText: 'Entendido'
+                    });
+                    return;
+                }
+
+                if (archivo.size > limiteBytes) {
+                    this.value = '';
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Archivo demasiado grande',
+                        text: 'La constancia no debe superar los 5 MB. Selecciona un archivo más pequeño.',
+                        confirmButtonColor: '#691C32',
+                        confirmButtonText: 'Entendido'
+                    });
+                    return;
+                }
+
+                previewBlobUrl = URL.createObjectURL(archivo);
+                document.getElementById('preview_constancia_frame').src = previewBlobUrl + '#toolbar=0&navpanes=0&view=FitH';
+                document.getElementById('preview_constancia_nombre').textContent = archivo.name;
+                document.getElementById('preview_constancia_abrir').href = previewBlobUrl;
+                document.getElementById('preview_constancia_box').classList.remove('hidden');
+            });
+
+            archivoOtroInput.addEventListener('change', function () {
+                const archivo = this.files[0];
+                limpiarPreviewOtro(false);
+
+                if (!archivo) return;
+
+                if (archivo.type !== 'application/pdf' && !archivo.name.toLowerCase().endsWith('.pdf')) {
+                    this.value = '';
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Formato no válido',
+                        text: 'La constancia debe estar en formato PDF.',
+                        confirmButtonColor: '#691C32',
+                        confirmButtonText: 'Entendido'
+                    });
+                    return;
+                }
+
+                if (archivo.size > limiteBytes) {
+                    this.value = '';
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Archivo demasiado grande',
+                        text: 'La constancia no debe superar los 5 MB. Selecciona un archivo más pequeño.',
+                        confirmButtonColor: '#691C32',
+                        confirmButtonText: 'Entendido'
+                    });
+                    return;
+                }
+
+                previewOtroBlobUrl = URL.createObjectURL(archivo);
+                document.getElementById('preview_otro_frame').src = previewOtroBlobUrl + '#toolbar=0&navpanes=0&view=FitH';
+                document.getElementById('preview_otro_nombre').textContent = archivo.name;
+                document.getElementById('preview_otro_abrir').href = previewOtroBlobUrl;
+                document.getElementById('preview_otro_box').classList.remove('hidden');
+            });
+
+            comprobanteInput.addEventListener('change', function () {
+                const archivo = this.files[0];
                 if (archivo && archivo.size > limiteBytes) {
                     this.value = '';
                     Swal.fire({
@@ -728,8 +929,6 @@
                     });
                 }
             });
-            validarPesoArchivo(constanciaInput);
-            validarPesoArchivo(comprobanteInput);
 
             @if($mostrarAlertaLogin)
                 Swal.fire({
@@ -740,17 +939,14 @@
                                 Estimado(a) trabajador(a), actualmente cuentas con <strong class="text-amber-700">{{$obligatoriosCompletados}} de {{ count($cursosCatalogo) }} cursos obligatorios</strong> acreditados para el ciclo normativo.
                             </p>
                             <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-900 leading-relaxed">
-                                ⚠️ <strong>Recuerda:</strong> La capacitación y actualización de conocimientos es una obligación de las personas servidoras públicas.</strong>.
+                                ⚠️ <strong>Recuerda:</strong> la capacitación y actualización de conocimientos es una obligación de las personas servidoras públicas.
                             </div>
                         </div>
                     `,
                     icon: 'warning',
                     iconColor: '#691C32',
-                    confirmButtonText: 'Ir a mis Cursos Obligatorios →',
+                    confirmButtonText: 'Entendido',
                     confirmButtonColor: '#691C32',
-                    showCancelButton: true,
-                    cancelButtonText: 'Entendido, más tarde',
-                    cancelButtonColor: '#6b7280',
                     customClass: {
                         popup: 'rounded-2xl shadow-2xl border border-gray-100',
                         confirmButton: 'rounded-xl text-xs font-bold px-4 py-2.5',

@@ -6,9 +6,9 @@
     <title>Plataforma de Capacitación | CONABIO</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -97,7 +97,6 @@
                                 placeholder="tu_usuario@semarnat.gob.mx" required autofocus autocomplete="username"
                                 class="block w-full pl-10 pr-3 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
                         </div>
-                        <x-input-error :messages="$errors->get('correo')" class="mt-1 text-xs text-red-600" />
                     </div>
                     <div>
                         <div class="flex items-center justify-between mb-1">
@@ -124,7 +123,6 @@
                                 autocomplete="current-password"
                                 class="block w-full pl-10 pr-3 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
                         </div>
-                        <x-input-error :messages="$errors->get('contrasena')" class="mt-1 text-xs text-red-600" />
                     </div>
                     <div class="flex items-center justify-between py-1">
                         <label for="remember_me" class="inline-flex items-center cursor-pointer">
@@ -157,6 +155,44 @@
             </div>
         </div>
     </div>
+
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const errores = @json($errors->all());
+
+                if (errores.length === 1) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Credenciales incorrectas',
+                        text: errores[0],
+                        confirmButtonColor: '#691C32',
+                        confirmButtonText: 'Corregir'
+                    });
+                } else {
+                    const ul = document.createElement('ul');
+                    ul.style.textAlign = 'left';
+                    ul.style.paddingLeft = '20px';
+                    ul.style.listStyleType = 'disc';
+
+                    errores.forEach(function (err) {
+                        const li = document.createElement('li');
+                        li.className = 'mb-1';
+                        li.textContent = err;
+                        ul.appendChild(li);
+                    });
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al iniciar sesión',
+                        html: ul,
+                        confirmButtonColor: '#691C32',
+                        confirmButtonText: 'Corregir'
+                    });
+                }
+            });
+        </script>
+    @endif
 
 </body>
 
