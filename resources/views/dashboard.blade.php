@@ -622,8 +622,6 @@
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Adjuntar Constancia (PDF)</label>
                     <input type="file" id="modal_constancia" name="constancia" accept=".pdf,application/pdf" required
                         class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#691C32]/10 file:text-[#691C32] hover:file:bg-[#691C32]/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50" />
-
-                    <!-- Mini visor de PDF -->
                     <div id="preview_constancia_box" class="hidden mt-3 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden shadow-sm">
                         <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 flex items-center justify-between gap-2">
                             <div class="flex items-center gap-2 min-w-0">
@@ -664,8 +662,8 @@
     </div>
 
     <div id="modal_semarnat" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-gray-200">
-            <div class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-5 flex items-start justify-between">
+        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-gray-200">
+            <div class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-5 flex items-start justify-between flex-shrink-0">
                 <div>
                     <span class="text-[10px] font-bold tracking-widest text-blue-200 uppercase">Validación Institucional</span>
                     <h3 id="modal_semarnat_titulo" class="text-base font-extrabold mt-0.5 leading-snug">Validar Curso con SEMARNAT</h3>
@@ -677,7 +675,7 @@
                 </button>
             </div>
 
-            <form action="{{ route('cursos.validar.semarnat') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+            <form action="{{ route('cursos.validar.semarnat') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4 overflow-y-auto">
                 @csrf
                 <input type="hidden" id="modal_semarnat_curso_id" name="curso_id" value="">
                 <div>
@@ -685,8 +683,32 @@
                     <input type="text" id="modal_semarnat_curso_nombre" readonly class="w-full text-xs font-semibold bg-gray-50 border-gray-200 rounded-lg text-gray-700 py-2.5 px-3 select-none" />
                 </div>
                 <div>
-                    <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Cargar PDF de respuesta (Correo o Acuse SEMARNAT):</label>
-                    <input type="file" id="modal_comprobante_semarnat" name="comprobante_semarnat" accept=".pdf,.png,.jpg,.jpeg" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-700/10 file:text-blue-800 hover:file:bg-blue-700/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50"/>
+                    <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Cargar PDF o imagen de respuesta (Correo o Acuse SEMARNAT):</label>
+                    <input type="file" id="modal_comprobante_semarnat" name="comprobante_semarnat" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-700/10 file:text-blue-800 hover:file:bg-blue-700/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50"/>
+
+                    <!-- Mini visor de respuesta SEMARNAT (PDF o Imagen) -->
+                    <div id="preview_semarnat_box" class="hidden mt-3 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden shadow-sm">
+                        <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="text-xs">📄</span>
+                                <span id="preview_semarnat_nombre" class="text-[11px] font-bold text-gray-700 truncate"></span>
+                            </div>
+                            <div class="flex items-center gap-3 flex-shrink-0">
+                                <a id="preview_semarnat_abrir" href="#" target="_blank" rel="noopener noreferrer"
+                                    class="text-[11px] font-bold text-blue-700 hover:underline">
+                                    Ampliar ↗
+                                </a>
+                                <button type="button" onclick="limpiarPreviewSemarnat(true)"
+                                    class="text-[11px] font-bold text-red-600 hover:text-red-800 cursor-pointer">
+                                    Quitar
+                                </button>
+                            </div>
+                        </div>
+                        <iframe id="preview_semarnat_frame" class="hidden w-full h-56 bg-white" title="Vista previa de respuesta SEMARNAT"></iframe>
+                        <div id="preview_semarnat_img_wrap" class="hidden p-2 bg-white flex justify-center">
+                            <img id="preview_semarnat_img" src="" alt="Vista previa de respuesta SEMARNAT" class="max-h-56 w-auto rounded object-contain" />
+                        </div>
+                    </div>
                 </div>
 
                 <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
@@ -705,6 +727,7 @@
     <script>
         let previewBlobUrl = null;
         let previewOtroBlobUrl = null;
+        let previewSemarnatBlobUrl = null;
 
         function limpiarPreviewConstancia(limpiarInput = false) {
             const box = document.getElementById('preview_constancia_box');
@@ -748,6 +771,32 @@
             }
         }
 
+        function limpiarPreviewSemarnat(limpiarInput = false) {
+            const box = document.getElementById('preview_semarnat_box');
+            const frame = document.getElementById('preview_semarnat_frame');
+            const imgWrap = document.getElementById('preview_semarnat_img_wrap');
+            const img = document.getElementById('preview_semarnat_img');
+            const nombre = document.getElementById('preview_semarnat_nombre');
+            const abrir = document.getElementById('preview_semarnat_abrir');
+
+            if (previewSemarnatBlobUrl) {
+                URL.revokeObjectURL(previewSemarnatBlobUrl);
+                previewSemarnatBlobUrl = null;
+            }
+
+            frame.src = 'about:blank';
+            frame.classList.add('hidden');
+            img.src = '';
+            imgWrap.classList.add('hidden');
+            nombre.textContent = '';
+            abrir.href = '#';
+            box.classList.add('hidden');
+
+            if (limpiarInput) {
+                document.getElementById('modal_comprobante_semarnat').value = '';
+            }
+        }
+
         function cambiarSeccion(seccion) {
             document.getElementById('sec-obligatorios').classList.add('hidden');
             document.getElementById('sec-otros').classList.add('hidden');
@@ -777,6 +826,7 @@
         }
 
         function abrirModalSemarnat(id, titulo) {
+            limpiarPreviewSemarnat(true);
             document.getElementById('modal_semarnat_curso_id').value = id;
             document.getElementById('modal_semarnat_curso_nombre').value = titulo;
             document.getElementById('modal_semarnat_titulo').innerText = 'Validar: ' + titulo;
@@ -784,6 +834,7 @@
         }
 
         function cerrarModalSemarnat() {
+            limpiarPreviewSemarnat(true);
             document.getElementById('modal_semarnat').classList.add('hidden');
         }
 
@@ -918,16 +969,54 @@
 
             comprobanteInput.addEventListener('change', function () {
                 const archivo = this.files[0];
-                if (archivo && archivo.size > limiteBytes) {
+                limpiarPreviewSemarnat(false);
+
+                if (!archivo) return;
+
+                const nombreMin = archivo.name.toLowerCase();
+                const esPdf = archivo.type === 'application/pdf' || nombreMin.endsWith('.pdf');
+                const esImagen = ['image/png', 'image/jpeg', 'image/jpg'].includes(archivo.type)
+                    || /\.(png|jpe?g)$/i.test(nombreMin);
+
+                if (!esPdf && !esImagen) {
+                    this.value = '';
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Formato no válido',
+                        text: 'El comprobante debe ser PDF o imagen (PNG, JPG, JPEG).',
+                        confirmButtonColor: '#1e40af',
+                        confirmButtonText: 'Entendido'
+                    });
+                    return;
+                }
+
+                if (archivo.size > limiteBytes) {
                     this.value = '';
                     Swal.fire({
                         icon: 'warning',
                         title: 'Archivo demasiado grande',
                         text: 'La constancia no debe superar los 5 MB. Selecciona un archivo más pequeño.',
-                        confirmButtonColor: '#691C32',
+                        confirmButtonColor: '#1e40af',
                         confirmButtonText: 'Entendido'
                     });
+                    return;
                 }
+
+                previewSemarnatBlobUrl = URL.createObjectURL(archivo);
+                document.getElementById('preview_semarnat_nombre').textContent = archivo.name;
+                document.getElementById('preview_semarnat_abrir').href = previewSemarnatBlobUrl;
+
+                if (esPdf) {
+                    const frame = document.getElementById('preview_semarnat_frame');
+                    frame.src = previewSemarnatBlobUrl + '#toolbar=0&navpanes=0&view=FitH';
+                    frame.classList.remove('hidden');
+                } else {
+                    const img = document.getElementById('preview_semarnat_img');
+                    img.src = previewSemarnatBlobUrl;
+                    document.getElementById('preview_semarnat_img_wrap').classList.remove('hidden');
+                }
+
+                document.getElementById('preview_semarnat_box').classList.remove('hidden');
             });
 
             @if($mostrarAlertaLogin)
