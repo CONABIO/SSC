@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -78,7 +79,7 @@
                     </p>
                 </div>
 
-                <form method="POST" action="{{ route('password.store') }}" class="space-y-4">
+                <form id="resetForm" method="POST" action="{{ route('password.store') }}" class="space-y-4" novalidate>
                     @csrf
                     <input type="hidden" name="token" value="{{ $request->route('token') }}">
                     @php
@@ -86,8 +87,7 @@
                     @endphp
                     <input type="hidden" name="correo" value="{{ $valorCorreo }}">
                     <input type="hidden" name="email" value="{{ $valorCorreo }}">
-                    <x-input-error :messages="$errors->get('correo')" class="text-xs text-red-600 font-bold" />
-                    <x-input-error :messages="$errors->get('email')" class="text-xs text-red-600 font-bold" />
+
                     <div>
                         <label for="password" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
                             Nueva Contraseña
@@ -99,11 +99,14 @@
                                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
-                            <input id="password" type="password" name="password" placeholder="••••••••••••" required autofocus
+                            <input id="password" type="password" name="password"
+                                minlength="8" maxlength="255" placeholder="••••••••••••" required autofocus
                                 autocomplete="new-password"
                                 class="block w-full pl-10 pr-3 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
                         </div>
-                        <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs text-red-600" />
+                        <p class="mt-1.5 text-[11px] text-gray-500">
+                            Debe tener mínimo 8 caracteres e incluir letras mayúsculas, minúsculas, números y signos (Ej. <span class="font-semibold text-gray-700">Ejempl0-894</span>).
+                        </p>
                     </div>
 
                     <div>
@@ -117,11 +120,11 @@
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
-                            <input id="password_confirmation" type="password" name="password_confirmation" placeholder="••••••••••••" required
+                            <input id="password_confirmation" type="password" name="password_confirmation"
+                                minlength="8" maxlength="255" placeholder="••••••••••••" required
                                 autocomplete="new-password"
                                 class="block w-full pl-10 pr-3 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-vino-800 focus:border-vino-800 transition outline-none" />
                         </div>
-                        <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1 text-xs text-red-600" />
                     </div>
 
                     <div class="pt-2">
@@ -146,5 +149,152 @@
             </div>
         </div>
     </div>
+
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const errores = @json($errors->all());
+                function traducirError(msg) {
+                    const traducciones = {
+                        'This password reset token is invalid.': 'El enlace o token para restablecer la contraseña no es válido o ya expiró. Solicita uno nuevo.',
+                        'passwords.token': 'El enlace o token para restablecer la contraseña no es válido o ya expiró. Solicita uno nuevo.',
+                        "We can't find a user with that email address.": 'No encontramos ninguna cuenta registrada con ese correo electrónico.',
+                        'passwords.user': 'No encontramos ninguna cuenta registrada con ese correo electrónico.',
+                        'Please wait before retrying.': 'Por favor espera unos momentos antes de intentarlo de nuevo.',
+                        'passwords.throttled': 'Por favor espera unos momentos antes de intentarlo de nuevo.',
+                        'The token field is required.': 'El token de recuperación es obligatorio.',
+                        'The token is required.': 'El token de recuperación es obligatorio.',
+                        'The email field is required.': 'El correo electrónico es obligatorio.',
+                        'The email is required.': 'El correo electrónico es obligatorio.',
+                        'The correo field is required.': 'El correo electrónico es obligatorio.',
+                        'The email field must be a valid email address.': 'El correo electrónico no tiene un formato válido.',
+                        'The email must be a valid email address.': 'El correo electrónico no tiene un formato válido.',
+                        'The correo field must be a valid email address.': 'El correo electrónico no tiene un formato válido.',
+                        'The password field is required.': 'Debes ingresar una nueva contraseña.',
+                        'The password is required.': 'Debes ingresar una nueva contraseña.',
+                        'The password field must be a string.': 'La contraseña debe ser un texto válido.',
+                        'The password field confirmation does not match.': 'La confirmación de la contraseña no coincide.',
+                        'The password confirmation does not match.': 'La confirmación de la contraseña no coincide.',
+                        'The password field must contain at least one uppercase and one lowercase letter.': 'La contraseña debe incluir al menos una letra mayúscula y una minúscula.',
+                        'The password field must contain at least one letter.': 'La contraseña debe incluir al menos una letra.',
+                        'The password field must contain at least one symbol.': 'La contraseña debe incluir al menos un signo o símbolo.',
+                        'The password field must contain at least one number.': 'La contraseña debe incluir al menos un número.',
+                        'The given password has appeared in a data leak. Please choose a different password.': 'Esta contraseña ha aparecido en filtraciones de seguridad. Por favor elige una diferente.'
+                    };
+
+                    if (traducciones[msg]) {
+                        return traducciones[msg];
+                    }
+                    const matchMin = msg.match(/The password (?:field )?must be at least (\d+) characters\./i);
+                    if (matchMin) {
+                        return `La contraseña debe tener al menos ${matchMin[1]} caracteres.`;
+                    }
+                    const matchMax = msg.match(/The password (?:field )?must not be greater than (\d+) characters\./i);
+                    if (matchMax) {
+                        return `La contraseña no debe tener más de ${matchMax[1]} caracteres.`;
+                    }
+                    const matchThrottle = msg.match(/Too many .*? in (\d+) seconds\./i);
+                    if (matchThrottle) {
+                        return `Demasiados intentos. Por favor intenta de nuevo en ${matchThrottle[1]} segundos.`;
+                    }
+                    if (/^(The |This |We |Please |Too many |Your |passwords\.|validation\.)/.test(msg)) {
+                        return 'No se pudo restablecer la contraseña. Verifica tus datos o solicita un nuevo enlace de recuperación.';
+                    }
+
+                    return msg;
+                }
+
+                const ul = document.createElement('ul');
+                ul.style.textAlign = 'left';
+                ul.style.paddingLeft = '20px';
+                ul.style.listStyleType = 'disc';
+                const mensajesUnicos = [...new Set(errores.map(traducirError))];
+                mensajesUnicos.forEach(function (err) {
+                    const li = document.createElement('li');
+                    li.className = 'mb-1';
+                    li.textContent = err;
+                    ul.appendChild(li);
+                });
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Aviso',
+                    html: ul,
+                    confirmButtonColor: '#691C32',
+                    confirmButtonText: 'Entendido'
+                });
+            });
+        </script>
+    @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('resetForm');
+            const passInput = document.getElementById('password');
+            const passConfirmInput = document.getElementById('password_confirmation');
+            function mostrarAlerta(titulo, texto, inputFocus) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: titulo,
+                    text: texto,
+                    confirmButtonColor: '#691C32',
+                    confirmButtonText: 'Corregir'
+                }).then(() => {
+                    if (inputFocus) inputFocus.focus();
+                });
+            }
+
+            form.addEventListener('submit', function (e) {
+                const pass = passInput.value;
+                const passConfirm = passConfirmInput.value;
+
+                if (!pass) {
+                    e.preventDefault();
+                    mostrarAlerta(
+                        'Campo obligatorio',
+                        'Por favor ingresa tu nueva contraseña.',
+                        passInput
+                    );
+                    return;
+                }
+
+                if (/\s/.test(pass)) {
+                    e.preventDefault();
+                    mostrarAlerta(
+                        'Contraseña inválida',
+                        'La contraseña no debe contener espacios en blanco.',
+                        passInput
+                    );
+                    return;
+                }
+
+                const faltantes = [];
+                if (pass.length < 8) faltantes.push('mínimo 8 caracteres');
+                if (!/[A-Z]/.test(pass)) faltantes.push('al menos una letra mayúscula');
+                if (!/[a-z]/.test(pass)) faltantes.push('al menos una letra minúscula');
+                if (!/[0-9]/.test(pass)) faltantes.push('al menos un número');
+                if (!/[^A-Za-z0-9\s]/.test(pass)) faltantes.push('al menos un signo (ej. - . _ ! @ # $)');
+
+                if (faltantes.length > 0) {
+                    e.preventDefault();
+                    mostrarAlerta(
+                        'Contraseña insegura',
+                        'Tu contraseña debe incluir: ' + faltantes.join(', ') + '. (Ejemplo: Ejempl0-894)',
+                        passInput
+                    );
+                    return;
+                }
+
+                if (pass !== passConfirm) {
+                    e.preventDefault();
+                    mostrarAlerta(
+                        'Contraseñas no coinciden',
+                        'Asegúrate de que ambas contraseñas escritas sean exactamente iguales.',
+                        passConfirmInput
+                    );
+                    return;
+                }
+            });
+        });
+    </script>
 </body>
 </html>
