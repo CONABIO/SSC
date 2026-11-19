@@ -351,25 +351,9 @@
                                 <div class="sm:col-span-12 p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 space-y-2">
                                     <label class="flex items-center gap-2.5 cursor-pointer select-none">
                                         <input type="checkbox" name="enviar_correo" id="otro_enviar_correo" value="1"
-                                            onchange="toggleCorreoCopia('otro')"
                                             class="rounded border-gray-300 text-[#691C32] focus:ring-[#691C32] w-4 h-4 cursor-pointer"/>
                                         <span class="text-xs font-bold text-gray-800">Enviar correo a Centro de Capacitación SEMARNAT</span>
                                     </label>
-
-                                    <div id="otro_correo_conabio_box" class="hidden pl-6 space-y-1">
-                                        <label for="otro_correo_copia" class="block text-[11px] font-bold text-gray-700">
-                                            Correo donde se mandara el comprobante de envío
-                                        </label>
-                                        <input
-                                            type="email"
-                                            name="correo_copia"
-                                            id="otro_correo_copia"
-                                            placeholder="ejemplo@conabio.gob.mx"
-                                            pattern="^[a-zA-Z0-9._%+\-]+@conabio\.gob\.mx$"
-                                            title="Ingresa un correo válido con dominio @conabio.gob.mx"
-                                            class="w-full sm:w-96 text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3 bg-white"
-                                        />
-                                    </div>
 
                                     <p class="text-[11px] text-amber-900 leading-relaxed pl-6">
                                         <strong class="font-bold">Nota:</strong> Para que el curso pueda considerarse validado, deberás contar con el acuse de recibido por parte de SEMARNAT. Si realizas el envío manual, asegúrate de conservar dicho acuse. De lo contrario, selecciona la casilla correspondiente para habilitar el envío automático de la constancia.
@@ -666,25 +650,9 @@
                 <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 space-y-2">
                     <label class="flex items-center gap-2.5 cursor-pointer select-none">
                         <input type="checkbox" name="enviar_correo" id="modal_enviar_correo" value="1"
-                            onchange="toggleCorreoCopia('modal')"
                             class="rounded border-gray-300 text-[#691C32] focus:ring-[#691C32] w-4 h-4 cursor-pointer"/>
                         <span class="text-xs font-bold text-gray-800">Enviar correo a Centro de Capacitación SEMARNAT</span>
                     </label>
-
-                    <div id="modal_correo_conabio_box" class="hidden pl-6 space-y-1">
-                        <label for="modal_correo_copia" class="block text-[11px] font-bold text-gray-700">
-                            Correo @conabio.gob.mx para recibir copia oculta (comprobante de envío):
-                        </label>
-                        <input
-                            type="email"
-                            name="correo_copia"
-                            id="modal_correo_copia"
-                            placeholder="ejemplo@conabio.gob.mx"
-                            pattern="^[a-zA-Z0-9._%+\-]+@conabio\.gob\.mx$"
-                            title="Ingresa un correo válido con dominio @conabio.gob.mx"
-                            class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3 bg-white"
-                        />
-                    </div>
 
                     <p class="text-[11px] text-amber-900 leading-relaxed pl-6">
                         <strong class="font-bold">Nota:</strong> Para que el curso pueda considerarse validado, deberás contar con el acuse de recibido por parte de SEMARNAT. Si realizas el envío manual, asegúrate de conservar dicho acuse. De lo contrario, selecciona la casilla correspondiente para habilitar el envío automático de la constancia.
@@ -766,34 +734,6 @@
         let previewBlobUrl = null;
         let previewOtroBlobUrl = null;
         let previewSemarnatBlobUrl = null;
-
-        function toggleCorreoCopia(tipo) {
-            const check = document.getElementById(tipo + '_enviar_correo');
-            const box = document.getElementById(tipo + '_correo_conabio_box');
-            const input = document.getElementById(tipo + '_correo_copia');
-
-            if (!check || !box || !input) return;
-
-            if (check.checked) {
-                box.classList.remove('hidden');
-                input.required = true;
-                input.focus();
-            } else {
-                box.classList.add('hidden');
-                input.required = false;
-                input.value = '';
-                input.setCustomValidity('');
-            }
-        }
-
-        function validarCorreoConabioInput(input) {
-            const valor = input.value.trim().toLowerCase();
-            if (input.required && !/^[a-z0-9._%+\-]+@conabio\.gob\.mx$/.test(valor)) {
-                input.setCustomValidity('Debes ingresar un correo válido @conabio.gob.mx');
-            } else {
-                input.setCustomValidity('');
-            }
-        }
 
         function limpiarPreviewConstancia(limpiarInput = false) {
             const box = document.getElementById('preview_constancia_box');
@@ -879,7 +819,6 @@
         function abrirModalCurso(id, titulo, horas) {
             limpiarPreviewConstancia(true);
             document.getElementById('modal_enviar_correo').checked = false;
-            toggleCorreoCopia('modal');
             document.getElementById('modal_curso_id').value = id;
             document.getElementById('modal_curso_titulo').innerText = titulo;
             document.getElementById('modal_curso_nombre').value = titulo;
@@ -891,7 +830,6 @@
         function cerrarModalCurso() {
             limpiarPreviewConstancia(true);
             document.getElementById('modal_enviar_correo').checked = false;
-            toggleCorreoCopia('modal');
             document.getElementById('modal_curso').classList.add('hidden');
         }
 
@@ -961,24 +899,7 @@
             const constanciaInput = document.getElementById('modal_constancia');
             const archivoOtroInput = document.getElementById('archivo_constancia');
             const comprobanteInput = document.getElementById('modal_comprobante_semarnat');
-            const otroCorreoInput = document.getElementById('otro_correo_copia');
-            const modalCorreoInput = document.getElementById('modal_correo_copia');
             const limiteBytes = 5 * 1024 * 1024;
-
-            if (otroCorreoInput) {
-                otroCorreoInput.addEventListener('input', function () {
-                    validarCorreoConabioInput(this);
-                });
-            }
-
-            if (modalCorreoInput) {
-                modalCorreoInput.addEventListener('input', function () {
-                    validarCorreoConabioInput(this);
-                });
-            }
-
-            toggleCorreoCopia('otro');
-            toggleCorreoCopia('modal');
 
             constanciaInput.addEventListener('change', function () {
                 const archivo = this.files[0];
