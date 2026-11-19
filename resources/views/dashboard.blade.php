@@ -11,11 +11,18 @@
     $obligatoriosEntregados = $todosLosCursos->where('obligatorio', 1)->pluck('nombre')->toArray();
     $cursosObligatoriosMap = $todosLosCursos->where('obligatorio', 1)->keyBy('nombre');
     $obligatoriosCompletados = count($obligatoriosEntregados);
-    $horasActuales = $todosLosCursos->sum('horas');
-    $cursosValidadosSemarnat = $todosLosCursos->where('validadoSemarnat', 1);
+    $anioActual = (int) date('Y');
+    $anioAnterior = $anioActual - 1;
+    $cursosAnioActual = $todosLosCursos->where('periodo', $anioActual);
+    $cursosAnioAnterior = $todosLosCursos->where('periodo', $anioAnterior);
+    $horasActuales = $cursosAnioActual->sum('horas');
+    $cursosValidadosSemarnat = $cursosAnioActual->where('validadoSemarnat', 1);
     $horasValidadasSemarnat = $cursosValidadosSemarnat->sum('horas');
     $metaHoras = 40;
     $porcentajeHoras = min(100, max(0, round(($horasActuales / $metaHoras) * 100)));
+    $horasCargadasAnterior = $cursosAnioAnterior->sum('horas');
+    $cursosValidadosAnterior = $cursosAnioAnterior->where('validadoSemarnat', 1);
+    $horasValidadasAnterior = $cursosValidadosAnterior->sum('horas');
     $obtenerIcono = function($nombre) {
         $nombre = mb_strtolower($nombre, 'UTF-8');
         if (str_contains($nombre, 'ciberseguridad')) return '🛡️';
@@ -105,7 +112,7 @@
 
                     <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-sm flex flex-col justify-between">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-bold tracking-wider text-gray-500">Horas validadas por SEMARNAT</span>
+                            <span class="text-[11px] font-bold tracking-wider text-gray-500">Horas validadas por SEMARNAT ({{ $anioActual }})</span>
                             <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-sm">✓</span>
                         </div>
                         <div class="mt-2 flex items-baseline gap-2">
@@ -176,11 +183,47 @@
                             <div class="mt-2">
                                 <div class="flex items-baseline gap-2">
                                     <span class="text-2xl font-black text-gray-900">{{ $horasActuales }} hrs / {{ $metaHoras }} hrs</span>
-                                    <span class="text-[11px] font-semibold {{ $horasActuales >= $metaHoras ? 'text-emerald-600' : 'text-[#691C32]' }}">{{ $horasActuales >= $metaHoras ? 'Cumplido' : 'Ciclo 2026' }}</span>
+                                    <span class="text-[11px] font-semibold {{ $horasActuales >= $metaHoras ? 'text-emerald-600' : 'text-[#691C32]' }}">{{ $horasActuales >= $metaHoras ? 'Cumplido' : 'Ciclo ' . $anioActual }}</span>
                                 </div>
                                 <div class="w-full bg-gray-100 h-1.5 rounded-full mt-2 overflow-hidden">
                                     <div class="bg-[#691C32] h-1.5 rounded-full transition-all duration-500" style="width: {{ $porcentajeHoras }}%"></div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-4 sm:p-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <span class="p-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs">📅</span>
+                                <div>
+                                    <h2 class="text-xs font-black tracking-wider text-gray-700 uppercase">Resumen Ciclo {{ $anioAnterior }}</h2>
+                                    <p class="text-[11px] text-gray-400">Contadores independientes del ciclo {{ $anioActual }}</p>
+                                </div>
+                            </div>
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 self-start sm:self-auto">
+                                {{ $cursosAnioAnterior->count() }} {{ $cursosAnioAnterior->count() === 1 ? 'curso' : 'cursos' }}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                            <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-200/70 flex items-center justify-between">
+                                <div>
+                                    <span class="block text-[11px] font-bold tracking-wider text-gray-500">Horas cargadas ({{ $anioAnterior }})</span>
+                                    <span class="text-2xl font-black text-gray-900 mt-1 block">{{ $horasCargadasAnterior }} hrs</span>
+                                </div>
+                                <span class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 text-sm shadow-sm">⏱️</span>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200/70 flex items-center justify-between">
+                                <div>
+                                    <span class="block text-[11px] font-bold tracking-wider text-emerald-800">Horas validadas ({{ $anioAnterior }})</span>
+                                    <div class="flex items-baseline gap-2 mt-1">
+                                        <span class="text-2xl font-black text-gray-900">{{ $horasValidadasAnterior }} hrs</span>
+                                        <span class="text-[11px] font-semibold text-emerald-700">{{ $cursosValidadosAnterior->count() }} {{ $cursosValidadosAnterior->count() === 1 ? 'curso' : 'cursos' }}</span>
+                                    </div>
+                                </div>
+                                <span class="p-2 rounded-lg bg-emerald-100 text-emerald-700 text-sm shadow-sm">✓</span>
                             </div>
                         </div>
                     </div>
@@ -396,6 +439,9 @@
                                                             </span>
                                                             <div>
                                                                 <p class="font-bold text-gray-900 text-xs">{{ $curso->nombre }}</p>
+                                                                @if($curso->periodo)
+                                                                    <span class="inline-block mt-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">Periodo {{ $curso->periodo }}</span>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </td>
@@ -485,7 +531,12 @@
                                                         <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-bold">
                                                             🌱
                                                         </span>
-                                                        <span>{{ $curso->nombre }}</span>
+                                                        <div>
+                                                            <span>{{ $curso->nombre }}</span>
+                                                            @if($curso->periodo)
+                                                                <span class="block text-[10px] font-semibold text-gray-500">Periodo {{ $curso->periodo }}</span>
+                                                            @endif
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td class="py-3.5 px-4 text-center font-bold text-gray-800">
@@ -691,8 +742,6 @@
                 <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Cargar PDF o imagen de respuesta (Correo o Acuse SEMARNAT):</label>
                     <input type="file" id="modal_comprobante_semarnat" name="comprobante_semarnat" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required class="w-full text-xs text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-700/10 file:text-blue-800 hover:file:bg-blue-700/20 cursor-pointer border border-gray-200 rounded-lg bg-gray-50"/>
-
-                    <!-- Mini visor de respuesta SEMARNAT (PDF o Imagen) -->
                     <div id="preview_semarnat_box" class="hidden mt-3 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden shadow-sm">
                         <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 flex items-center justify-between gap-2">
                             <div class="flex items-center gap-2 min-w-0">
