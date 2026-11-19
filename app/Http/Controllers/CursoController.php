@@ -50,16 +50,6 @@ class CursoController extends Controller
             'horas'           => 'required|integer|min:1',
             'calificacion'    => 'required|numeric|min:0|max:10',
             'constancia_otro' => 'required|file|mimes:pdf,png,jpg,jpeg|max:5120',
-            'correo_copia'    => [
-                'nullable',
-                'required_if:enviar_correo,1',
-                'email',
-                'regex:/^[A-Za-z0-9._%+\-]+@conabio\.gob\.mx$/i',
-            ],
-        ], [
-            'correo_copia.required_if' => 'Debes ingresar un correo @conabio.gob.mx para enviar el comprobante.',
-            'correo_copia.email'       => 'El correo para el comprobante no es válido.',
-            'correo_copia.regex'       => 'El correo para el comprobante debe pertenecer al dominio @conabio.gob.mx.',
         ]);
 
         $usuario = Auth::user();
@@ -79,23 +69,31 @@ class CursoController extends Controller
             'calificacion'     => $request->calificacion,
             'evidencia'        => $rutaArchivo,
         ]);
+
         if ($request->boolean('enviar_correo')) {
-            $correoComprobante = strtolower(trim($request->input('correo_copia')));
             $archivo = $request->file('constancia_otro');
+            $correoEmpleado = trim($usuario->correo ?? $usuario->email ?? '');
+
             Mail::to('centro.capacitacion@semarnat.gob.mx')->send(
                 new \App\Mail\ConstanciaObligatorioMailable($usuario, $curso, $archivo)
             );
-            Mail::to($correoComprobante)->send(
-                new \App\Mail\ConstanciaObligatorioMailable(
-                    $usuario,
-                    $curso,
-                    $archivo,
-                    'talento.humano@conabio.gob.mx',
-                    'Talento Humano CONABIO'
-                )
-            );
 
-            $mensaje = "Constancia enviada a centro.capacitacion@semarnat.gob.mx y comprobante enviado a {$correoComprobante}.";
+            if (filter_var($correoEmpleado, FILTER_VALIDATE_EMAIL)) {
+                Mail::to($correoEmpleado)->send(
+                    new \App\Mail\ConstanciaObligatorioMailable(
+                        $usuario,
+                        $curso,
+                        $archivo,
+                        'talento.humano@conabio.gob.mx',
+                        'Sistema de Seguimiento de Capacitación',
+                        true
+                    )
+                );
+            }
+
+            $mensaje = filter_var($correoEmpleado, FILTER_VALIDATE_EMAIL)
+                ? "Constancia enviada a centro.capacitacion@semarnat.gob.mx y comprobante enviado a {$correoEmpleado}."
+                : 'Constancia enviada a centro.capacitacion@semarnat.gob.mx.';
         } else {
             $mensaje = 'Curso registrado exitosamente.';
         }
@@ -155,16 +153,6 @@ class CursoController extends Controller
             'calificacion' => 'required|numeric|min:0|max:10',
             'periodo'      => 'required|integer|between:2025,2030',
             'constancia'   => 'required|file|mimes:pdf|max:5120',
-            'correo_copia' => [
-                'nullable',
-                'required_if:enviar_correo,1',
-                'email',
-                'regex:/^[A-Za-z0-9._%+\-]+@conabio\.gob\.mx$/i',
-            ],
-        ], [
-            'correo_copia.required_if' => 'Debes ingresar un correo @conabio.gob.mx para enviar el comprobante.',
-            'correo_copia.email'       => 'El correo para el comprobante no es válido.',
-            'correo_copia.regex'       => 'El correo para el comprobante debe pertenecer al dominio @conabio.gob.mx.',
         ]);
 
         $usuario = Auth::user();
@@ -186,24 +174,27 @@ class CursoController extends Controller
         $curso->periodo = $request->periodo;
 
         if ($request->boolean('enviar_correo')) {
-            $correoComprobante = strtolower(trim($request->input('correo_copia')));
             $archivo = $request->file('constancia');
-
+            $correoEmpleado = trim($usuario->correo ?? $usuario->email ?? '');
             Mail::to('centro.capacitacion@semarnat.gob.mx')->send(
                 new \App\Mail\ConstanciaObligatorioMailable($usuario, $curso, $archivo)
             );
+            if (filter_var($correoEmpleado, FILTER_VALIDATE_EMAIL)) {
+                Mail::to($correoEmpleado)->send(
+                    new \App\Mail\ConstanciaObligatorioMailable(
+                        $usuario,
+                        $curso,
+                        $archivo,
+                        'talento.humano@conabio.gob.mx',
+                        'Sistema de Seguimiento de Capacitación',
+                        true
+                    )
+                );
+            }
 
-            Mail::to($correoComprobante)->send(
-                new \App\Mail\ConstanciaObligatorioMailable(
-                    $usuario,
-                    $curso,
-                    $archivo,
-                    'talento.humano@conabio.gob.mx',
-                    'Talento Humano CONABIO'
-                )
-            );
-
-            $mensaje = "Constancia enviada a centro.capacitacion@semarnat.gob.mx y comprobante enviado a {$correoComprobante}.";
+            $mensaje = filter_var($correoEmpleado, FILTER_VALIDATE_EMAIL)
+                ? "Constancia enviada a centro.capacitacion@semarnat.gob.mx y comprobante enviado a {$correoEmpleado}."
+                : 'Constancia enviada a centro.capacitacion@semarnat.gob.mx.';
         } else {
             $mensaje = 'Curso obligatorio acreditado exitosamente.';
         }
