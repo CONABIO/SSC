@@ -23,26 +23,40 @@ class ConstanciaObligatorioMailable extends Mailable
 
     public function build()
     {
-        $nombreCompleto = trim($this->usuario->nombre . ' ' . ($this->usuario->apellidoP ?? '') . ' ' . ($this->usuario->apellidoM ?? ''));
-        $correoEmpleado = $this->usuario->correo;
+        $nombreCompleto = trim(
+            ($this->usuario->nombre ?? $this->usuario->name ?? '') . ' ' .
+            ($this->usuario->apellidoP ?? '') . ' ' .
+            ($this->usuario->apellidoM ?? '')
+        );
+        $correoEmpleado = trim($this->usuario->correo ?? $this->usuario->email ?? '');
         $periodo = $this->curso->periodo ?? date('Y');
 
-        return $this->from($correoEmpleado, $nombreCompleto)
+        $fromAddress = filter_var($correoEmpleado, FILTER_VALIDATE_EMAIL)
+            ? $correoEmpleado
+            : config('mail.from.address');
+
+        $mail = $this->from($fromAddress, $nombreCompleto)
                     ->subject('Constancia de curso')
                     ->html("
                         <div style='font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.8; color: #222;'>
-                            <p>Buenas tardes,</p>
+                            <p>Buen día,</p>
 
                             <p>
-                            Se adjunta la constancia del curso {$this->curso->nombre} para el registro de {$this->curso->horas} horas de capacitación del periodo {$periodo}.
+                                Se adjunta la constancia del curso {$this->curso->nombre} para el registro de {$this->curso->horas} horas de capacitación del periodo {$periodo}.
+                            </p>
+
                             <p style='margin: 0;'>Saludos cordiales,</p>
                             <p style='margin: 0;'>{$nombreCompleto}</p>
-                            </p>
                         </div>
-                    ")
-                    ->attach($this->archivo->getRealPath(), [
-                        'as'   => $this->archivo->getClientOriginalName(),
-                        'mime' => $this->archivo->getMimeType(),
-                    ]);
+                    ");
+
+        if ($this->archivo) {
+            $mail->attach($this->archivo->getRealPath(), [
+                'as'   => $this->archivo->getClientOriginalName(),
+                'mime' => $this->archivo->getMimeType(),
+            ]);
+        }
+
+        return $mail;
     }
 }
