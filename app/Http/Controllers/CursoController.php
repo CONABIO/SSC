@@ -171,7 +171,6 @@ class CursoController extends Controller
             'periodo'          => $request->periodo,
             'evidencia'        => $rutaArchivo,
         ]);
-        $curso->periodo = $request->periodo;
 
         if ($request->boolean('enviar_correo')) {
             $archivo = $request->file('constancia');
@@ -206,7 +205,7 @@ class CursoController extends Controller
 
     public function verEvidencia($id)
     {
-        $curso = \App\Models\Curso::findOrFail($id);
+        $curso = Curso::findOrFail($id);
         $user = Auth::user();
         $idEmpleadoActual = $user->idEmpleado ?? $user->id;
 
@@ -234,8 +233,7 @@ class CursoController extends Controller
         $curso = Curso::findOrFail($id);
         $usuario = Auth::user();
         $idEmpleadoActual = $usuario->idEmpleado ?? $usuario->id;
-
-        if ($curso->idEmpleado != $idEmpleadoActual && $user->idRol != 1) {
+        if ($curso->idEmpleado != $idEmpleadoActual && $usuario->idRol != 1) {
             abort(403, 'No tienes permiso para ver este comprobante.');
         }
 
