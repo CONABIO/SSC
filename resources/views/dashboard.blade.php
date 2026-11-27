@@ -698,7 +698,7 @@
 
                 <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Calificación obtenida</label>
-                    <input step="0.01"type="number" min="1" max="999" name="horas" placeholder="Ej. 40" name="calificacion" required class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3" oninput="if(parseFloat(this.value) > 10) this.value = 10; if(parseFloat(this.value) < 0) this.value = 0;" />
+                    <input step="0.01"type="number" min="1" max="999" placeholder="Ej. 40" name="calificacion" required class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3" oninput="if(parseFloat(this.value) > 10) this.value = 10; if(parseFloat(this.value) < 0) this.value = 0;" />
                     <p class="text-[11px] text-amber-900 leading-relaxed mt-1">
                         <strong class="font-bold">Nota:</strong> Si la calificación obtenida está expresada en una escala de hasta 100 puntos, deberás convertirla a una escala de 10, utilizando únicamente un decimal. Por ejemplo, si obtuviste 99 puntos, deberás capturar 9.9.
                     </p>
