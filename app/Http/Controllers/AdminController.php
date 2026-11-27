@@ -92,9 +92,27 @@ class AdminController extends Controller
     public function destroyCursoObligatorio($id)
     {
         $columnaId = DB::getSchemaBuilder()->hasColumn('cat_cursosemarnat', 'idCurso') ? 'idCurso' : 'id';
+        $curso = DB::table('cat_cursosemarnat')->where($columnaId, $id)->first();
+        if (!$curso) {
+            return redirect()->back()
+                ->with('error', 'El curso no existe o ya fue eliminado.')
+                ->with('seccion_admin', 'cursos');
+        }
+
+        $personasConCurso = DB::table('cursos')
+            ->where('nombre', $curso->nombre)
+            ->where('obligatorio', 1)
+            ->count();
+
+        if ($personasConCurso > 0) {
+            return redirect()->back()
+                ->with('error', "No se puede eliminar el curso \ $curso->nombre\ porque ya cuenta con {$personasConCurso} registro(s) de empleado(s) que lo realizaron.")
+                ->with('seccion_admin', 'cursos');
+        }
+
         DB::table('cat_cursosemarnat')->where($columnaId, $id)->delete();
         return redirect()->back()
-            ->with('success', 'Curso eliminado del catálogo.')
+            ->with('success', 'Curso eliminado del catálogo exitosamente.')
             ->with('seccion_admin', 'cursos');
     }
 

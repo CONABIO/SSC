@@ -334,16 +334,35 @@
                                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
                                         Horas de capacitación:
                                     </label>
-                                    <input id="input_horas" type="number" min="1" name="horas" placeholder="Ej. 40" required
-                                        class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white" />
+                                    <input
+                                        id="input_horas"
+                                        type="number"
+                                        min="1"
+                                        max="999"
+                                        name="horas"
+                                        placeholder="Ej. 40"
+                                        required
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3);"
+                                        class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white"
+                                    />
                                 </div>
 
                                 <div class="sm:col-span-3">
                                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
                                         Calificación:
                                     </label>
-                                    <input id="input_calificacion" type="number" step="0.01" min="0" max="10" name="calificacion" placeholder="Ej. 9.5" required
-                                        class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white" />
+                                    <input
+                                        id="input_calificacion"
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        max="10"
+                                        name="calificacion"
+                                        placeholder="Ej. 9.5"
+                                        required
+                                        oninput="if(parseFloat(this.value) > 10) this.value = 10; if(parseFloat(this.value) < 0) this.value = 0; if(this.value.length > 4) this.value = this.value.slice(0, 4);"
+                                        class="w-full text-xs rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2.5 px-3 bg-white"
+                                    />
                                 </div>
 
                                 <div class="sm:col-span-4">
@@ -660,14 +679,26 @@
                 </div>
 
                 <div>
-                    <label for="modal_curso_horas" class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Horas de capacitación</label>
-                    <input type="number" min="1" id="modal_curso_horas" name="horas" placeholder="Ej. 10" required
-                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3 bg-white"/>
+                    <label for="modal_curso_horas" class="block text-xs font-bold tracking-wider text-gray-700 mb-1">
+                        Horas de capacitación
+                    </label>
+                    <input
+                        type="number"
+                        min="1"
+                        max="999"
+                        id="modal_curso_horas"
+                        name="horas"
+                        placeholder="Ej. 10"
+                        required
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3);"
+                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3 bg-white"
+                    />
                 </div>
+
 
                 <div>
                     <label class="block text-xs font-bold tracking-wider text-gray-700 mb-1">Calificación obtenida</label>
-                    <input type="number" step="0.01" min="0" max="10" name="calificacion" placeholder="Ej. 10" required class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3" oninput="if(parseFloat(this.value) > 10) this.value = 10; if(parseFloat(this.value) < 0) this.value = 0;" />
+                    <input step="0.01"type="number" min="1" max="999" name="horas" placeholder="Ej. 40" name="calificacion" required class="w-full text-sm rounded-lg border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] py-2 px-3" oninput="if(parseFloat(this.value) > 10) this.value = 10; if(parseFloat(this.value) < 0) this.value = 0;" />
                     <p class="text-[11px] text-amber-900 leading-relaxed mt-1">
                         <strong class="font-bold">Nota:</strong> Si la calificación obtenida está expresada en una escala de hasta 100 puntos, deberás convertirla a una escala de 10, utilizando únicamente un decimal. Por ejemplo, si obtuviste 99 puntos, deberás capturar 9.9.
                     </p>

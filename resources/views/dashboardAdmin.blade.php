@@ -77,14 +77,14 @@
 
                         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left text-xs text-gray-600" id="tabla_empleados">
-                                    <thead class="bg-[#691C32] text-white text-[10px] font-black tracking-wider uppercase">
+                                <table class="w-full min-w-[600px] table-fixed text-left text-xs text-gray-600" id="tabla_empleados">
+                                    <thead class="bg-[#691C32] text-white text-[9px] font-black tracking-wider">
                                         <tr>
                                             <th class="py-3.5 px-4 text-center w-14">No.</th>
-                                            <th class="py-3.5 px-4">Nombre Completo</th>
-                                            <th class="py-3.5 px-4 text-center w-28 min-w-[7rem] whitespace-nowrap">Cursos</th>
-                                            <th class="py-3.5 px-4 text-center w-44">Avance Horas</th>
-                                            <th class="py-3.5 px-3 text-center w-28">Expediente</th>
+                                            <th class="py-3.5 px-4 w-48">Nombre Completo</th>
+                                            <th class="py-3.5 px-4 text-center w-28 whitespace-nowrap">Cursos</th>
+                                            <th class="py-3.5 px-4 text-center w-36">Avance Horas</th>
+                                            <th class="py-3.5 px-3 text-center w-20">Expediente</th>
                                             <th class="py-3.5 px-3 text-center w-28">Recordatorio</th>
                                             <th class="py-3.5 px-3 text-center w-24">Descargar</th>
                                         </tr>
@@ -374,7 +374,16 @@
                                 <div class="sm:col-span-4">
                                     <label class="block text-xs font-bold text-gray-700 mb-1.5">Horas de valor curricular:</label>
                                     <div class="flex gap-2">
-                                        <input type="number" name="horas" min="1" max="100" placeholder="Ej. 10" required class="w-full text-xs pl-3 pr-2 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] bg-gray-50/50 focus:bg-white transition"/>
+                                        <input
+                                            type="number"
+                                            name="horas"
+                                            min="1"
+                                            max="999"
+                                            placeholder="Ej. 10"
+                                            required
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3);"
+                                            class="w-full text-xs pl-3 pr-2 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#691C32] focus:border-[#691C32] bg-gray-50/50 focus:bg-white transition"
+                                        />
                                         <button type="submit" class="px-5 py-2.5 bg-[#691C32] hover:bg-[#501325] text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5 flex-shrink-0 cursor-pointer">Guardar</button>
                                     </div>
                                 </div>
